@@ -7,9 +7,15 @@ def dataloader():
     test_wav_path = Path(__file__).resolve().parents[2] / "data/speechocean762/test/wav.scp"
     
     train_samples = {}
+    val_samples = {}
     test_samples = {}
     
+    train_len = len(train_wav_path.read_text().splitlines())
+    
     with open(train_wav_path, "r") as file:
+        
+        val_split_index = int(train_len * 0.90)
+        sample_number = 0
         for line in file:
             parts = line.strip().split()
             
@@ -34,7 +40,12 @@ def dataloader():
                 "target_classes": target_classes
             }
             
-            train_samples[sample_id] = sample
+            if sample_number < val_split_index:
+                train_samples[sample_id] = sample
+            else:
+                val_samples[sample_id] = sample
+                
+            sample_number += 1
             
     with open(test_wav_path, "r") as file:
         for line in file:
@@ -63,4 +74,4 @@ def dataloader():
             
             test_samples[sample_id] = sample
             
-    return train_samples, test_samples
+    return train_samples, val_samples, test_samples

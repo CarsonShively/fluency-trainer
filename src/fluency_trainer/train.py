@@ -1,10 +1,14 @@
 import tensorflow as tf
 
-def train(dataset, user_encoder, target_encoder, transformer, classifier, optimizer, loss_fn):
+def train(train_dataset, val_dataset, user_encoder, target_encoder, transformer, classifier, optimizer, loss_fn):
     max_epochs = 100
+    patience = 10
+    patience_counter = 0
+    best_loss = float("inf")
+    epsilon = 0.001
     
     for epoch in range(max_epochs):
-        for batch, labels, labels_mask in dataset:
+        for batch, labels, labels_mask in train_dataset:
             
             with tf.GradientTape() as tape:
                 user_attention = user_encoder(batch["user_audio"], batch["user_audio_mask"])
@@ -26,3 +30,39 @@ def train(dataset, user_encoder, target_encoder, transformer, classifier, optimi
             
             gradients = tape.gradient(loss, all_variables)
             optimizer.apply_gradients(zip(gradients, all_variables))
+            
+        total_loss = 0
+        batch_counter = 0
+            
+        for batch, labels, labels_mask in val_dataset:
+            
+            user_attention = user_encoder(batch["user_audio"], batch["user_audio_mask"])
+            target_attention = target_encoder(batch["target_phones"], batch["target_phones_mask"])
+            
+            cross_attention = transformer(user_attention, target_attention, batch["user_audio_mask"], batch["target_phones_mask"])
+            
+            logits = classifier(cross_attention)
+            
+            loss = loss_fn(labels, logits)
+            
+            classes_mask = tf.cast(labels_mask, tf.float32)
+            
+            loss_masked = loss * classes_mask
+            
+            loss_avg = tf.reduce_sum(loss_masked) / tf.reduce_sum(labels_mask)
+            
+            total_loss += loss_avg
+            
+        batch_counter += 1
+        avg_loss = total_loss / batch_counter
+        
+        if avg_loss + epsilon < best_loss:
+            best_loss = avg_loss
+            patience_counter = 0
+        else:
+            patience_counter += 1
+            
+        if patience_counter == patience:
+            return best_loss
+        
+    return best_loss
