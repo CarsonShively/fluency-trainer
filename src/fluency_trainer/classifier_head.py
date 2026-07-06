@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-class ClasifierHead(tf.keras.Model):
+class ClassifierHead(tf.keras.Model):
     def __init__(self, embeded_vector_size, dense1, dense2):
         super().__init__()
         
@@ -27,12 +27,12 @@ class ClasifierHead(tf.keras.Model):
         )
         
         self.layer3 = tf.Variable(
-            dense_init(shape=[dense2, 1]),
+            dense_init(shape=[dense2, 3]),
             trainable=True
         )
 
         self.bias3 = tf.Variable(
-            tf.zeros(1),
+            tf.zeros(3),
             trainable=True
         )
         

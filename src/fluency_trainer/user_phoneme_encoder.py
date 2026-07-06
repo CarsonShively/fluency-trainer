@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 class UserPhonemeEncoder(tf.keras.Model):
-    def __init__(self, vocab_size, uncertianty_vector_size, max_phonemes, dense_width, dense1_width):
+    def __init__(self, max_phonemes, uncertianty_vector_size, dense_width, dense1_width):
         super().__init__()
         
         self.uncertianty_vector_size = uncertianty_vector_size
@@ -12,8 +12,6 @@ class UserPhonemeEncoder(tf.keras.Model):
         transform_initializer = tf.keras.initializers.GlorotUniform()
         bias1_initialier = tf.zeros(dense1_width)
         bias2_initialier = tf.zeros(uncertianty_vector_size)
-
-        self.ids_vector = tf.zeros(max_phonemes)
         
         self.position_map = tf.Variable(
             lookup_initializer(shape=[max_phonemes, uncertianty_vector_size]),
@@ -66,22 +64,17 @@ class UserPhonemeEncoder(tf.keras.Model):
 
 
 
-    def call(self, x):
+    def call(self, x, mask):
         
         if not tf.is_tensor(x):
             raise ValueError("x not tensor")
         
-        if x.shape[1] > self.max_phonemes:
-            raise ValueError("x to long")
+        mask = tf.cast(mask, tf.bool)
         
-        padded_ids = tf.pad(x, paddings=[[0, 0], [0, self.max_phonemes - x.shape[1]], [0, 0]], constant_values=0)
+        context_mask = mask[:, tf.newaxis, :]
+        output_mask = mask[:, :, tf.newaxis]
         
-        valid_positions = tf.not_equal(padded_ids, 0)
-        reduced_valid_positions = tf.reduce_any(valid_positions, -1)
-        context_mask = reduced_valid_positions[:, tf.newaxis, :]
-        output_mask = reduced_valid_positions[:, :, tf.newaxis]
-        
-        position_aware_matrix = padded_ids + self.position_map
+        position_aware_matrix = x + self.position_map
         
         q_matrix = position_aware_matrix @ self.q
         k_matrix = position_aware_matrix @ self.k
@@ -119,4 +112,4 @@ class UserPhonemeEncoder(tf.keras.Model):
         
         target_self_attention = residual2_matrix_norm * tf.cast(output_mask, residual2_matrix_norm.dtype)
         
-        return target_self_attention, reduced_valid_positions
+        return target_self_attention

@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 class TargetPhonemeEncoder(tf.keras.Model):
-    def __init__(self, vocab_size, embeded_vector_size, max_phonemes, dense_width, dense1_width):
+    def __init__(self, vocab_size, max_phonemes, embeded_vector_size, dense_width, dense1_width):
         super().__init__()
         
         self.vocab_size = vocab_size
@@ -80,20 +80,15 @@ class TargetPhonemeEncoder(tf.keras.Model):
 
 
 
-    def call(self, x):
+    def call(self, x, mask):
         
         if not tf.is_tensor(x):
             raise ValueError("x not tensor")
         
-        if x.shape[1] > self.max_phonemes:
-            raise ValueError("x to long")
+        context_mask = mask[:, tf.newaxis, :]
+        output_mask = mask[:, :, tf.newaxis]
         
-        padded_ids = tf.pad(x, paddings=[[0, 0], [0, self.max_phonemes - x.shape[1]]], constant_values=0)
-        valid_positions = tf.not_equal(padded_ids, 0)
-        context_mask = valid_positions[:, tf.newaxis, :]
-        output_mask = valid_positions[:, :, tf.newaxis]
-        
-        embeded_matrix = self.phoneme_embedding_map[padded_ids]
+        embeded_matrix = self.phoneme_embedding_map[x]
         
         position_aware_matrix = embeded_matrix + self.position_map
         
@@ -133,4 +128,4 @@ class TargetPhonemeEncoder(tf.keras.Model):
         
         target_self_attention = residual2_matrix_norm * tf.cast(output_mask, residual2_matrix_norm.dtype)
         
-        return target_self_attention, valid_positions
+        return target_self_attention

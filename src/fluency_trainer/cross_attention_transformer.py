@@ -56,13 +56,13 @@ class CrossAttentionTransformer(tf.keras.Model):
         
 
     
-    def call(self, target_attention, user_attention, target_valid_positions, user_valid_positions):
+    def call(self, target_attention, user_attention, user_mask, target_mask):
         
         if not tf.is_tensor(target_attention) or not tf.is_tensor(user_attention):
             raise TypeError("an attention matrix is not a tensor.")
         
-        user_key_mask = user_valid_positions[:, tf.newaxis, :]
-        output_mask = target_valid_positions[:, :, tf.newaxis]
+        user_key_mask = user_mask[:, tf.newaxis, :]
+        output_mask = target_mask[:, :, tf.newaxis]
         
         
         target_query = target_attention @ self.q

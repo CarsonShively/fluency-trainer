@@ -15,7 +15,6 @@ def user_audio_matrix(user_audio_paths):
             raise ValueError("sample rate not 16000, wav2vec2 expects 16000")
         
         user_audio.append(waveform)
-        
     wav2vec2_path = Path(__file__).resolve().parents[2] / "wav2vec2"
         
 
@@ -37,4 +36,4 @@ def user_audio_matrix(user_audio_paths):
     output_logits = output.logits
     output_softmax = torch.softmax(output_logits, axis=-1)
     
-    return output_softmax
+    return output_softmax, processed_user_audio["attention_mask"], output_softmax.shape[1], output_softmax.shape[2]
