@@ -25,3 +25,8 @@ $(STAMP): $(ROOT)uv.lock $(UV)
 
 install: $(STAMP)
 
+download-wav2vec2: $(STAMP)
+	cd $(ROOT) && $(PY) download_wav2vec2.py
+
+build-model: $(STAMP)
+	cd $(ROOT) && $(PY) build_model.py

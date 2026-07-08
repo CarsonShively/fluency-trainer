@@ -1,4 +1,5 @@
 .venv/
 scratch_notes.txt
 outline.txt
-*.egg-info
+*.egg-info/
+wav2vec2/

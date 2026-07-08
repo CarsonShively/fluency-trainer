@@ -9,3 +9,4 @@ Requires-Dist: tensorflow<3,>=2.16
 Requires-Dist: torch<3,>=2.7
 Requires-Dist: soundfile<1,>=0.12
 Requires-Dist: transformers<6,>=4.50
+Requires-Dist: phonemizer<4,>=3.3
