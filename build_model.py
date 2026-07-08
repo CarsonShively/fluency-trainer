@@ -1,5 +1,3 @@
-from fluency_trainer.dataloader import dataloader
-from fluency_trainer.build_vocab import build_vocab
 from fluency_trainer.samples_to_matrices import samples_to_matrices
 from fluency_trainer.target_phones_matrix import target_phones_matrix
 from fluency_trainer.user_audio_matrix import user_audio_matrix
@@ -17,9 +15,25 @@ import shutil
 import json
 
 def build_model():
-    train_samples, val_samples, test_samples = dataloader()
+    print("starting...")
+    samples_path = Path(__file__).resolve().parents[0] / "data/samples"
     
-    vocab, vocab_size = build_vocab(train_samples=train_samples)
+    with open(samples_path / "train.json", "r") as con:
+        train_samples = json.load(con)
+    
+    with open(samples_path / "val.json", "r") as con:
+        val_samples = json.load(con)
+    
+    with open(samples_path / "test.json", "r") as con:
+        test_samples = json.load(con)
+    
+    print("train, val, and test samples loaded")
+    
+    vocab_path = Path(__file__).resolve().parents[0] / "data/vocab/vocab.json"
+    with open(vocab_path, "r") as con:
+        vocab = json.load(con)
+
+    print(f"vocab length: {len(vocab)}")
     
     train_user_audio, train_target_phones, train_target_classes, val_user_audio, val_target_phones, val_target_classes, test_user_audio, test_target_phones, test_target_classes = samples_to_matrices(train_samples=train_samples, val_samples=val_samples, test_samples=test_samples)
     
@@ -127,3 +141,5 @@ def build_model():
     with open(out_path / "metrics.json", "w") as con:
         json.dump(metrics, con)
         
+if __name__ == "__main__":
+    build_model()
