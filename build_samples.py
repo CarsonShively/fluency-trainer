@@ -1,9 +1,8 @@
 from pathlib import Path
 import json
 import shutil
-# build samples
-# dataloader == tensor datasets
-def dataloader():
+
+def build_samples():
     
     train_wav_path = Path(__file__).resolve().parents[0] / "data/speechocean762/train/wav.scp"
     test_wav_path = Path(__file__).resolve().parents[0] / "data/speechocean762/test/wav.scp"
@@ -27,7 +26,7 @@ def dataloader():
             parts = line.strip().split()
             
             sample_id = parts[0]
-            user_audio_path = Path(__file__).resolve().parents[0] / "data/speechocean762" / parts[1]
+            user_audio_path = f"data/speechocean762/{parts[1]}"
             
             
             
@@ -61,7 +60,7 @@ def dataloader():
             parts = line.strip().split()
             
             sample_id = parts[0]
-            user_audio_path = Path(__file__).resolve().parents[0] / "data/speechocean762" / parts[1]
+            user_audio_path = f"data/speechocean762/{parts[1]}"
             
             target_phonemes = []
             target_classes = []
@@ -101,4 +100,4 @@ def dataloader():
     print("samples saved.")
     
 if __name__ == "__main__":
-    dataloader()
+    build_samples()

@@ -57,7 +57,8 @@ def build_matrices():
     for split, audio, phones, classes in samples:
         
         for sample in split:
-            waveform, sample_rate = sf.read(sample["user_audio_path"])
+            audio_path = Path(__file__).resolve().parents[0] / sample["user_audio_path"]
+            waveform, sample_rate = sf.read(audio_path)
             
             if sample_rate != expected_sample_rate:
                 raise ValueError(f"sample rate: {sample_rate}, expected sample rate: {expected_sample_rate}")
@@ -222,3 +223,6 @@ def build_matrices():
     np.save(out_path / "train_target_classes_mask.npy", train_classes_mask)
     np.save(out_path / "val_target_classes_mask.npy", val_classes_mask)
     np.save(out_path / "test_target_classes_mask.npy", test_classes_mask)
+    
+if __name__ == "__main__":
+    build_matrices()
