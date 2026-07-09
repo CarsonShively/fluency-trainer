@@ -1,7 +1,8 @@
 from pathlib import Path
 import json
 import shutil
-
+# build samples
+# dataloader == tensor datasets
 def dataloader():
     
     train_wav_path = Path(__file__).resolve().parents[0] / "data/speechocean762/train/wav.scp"
