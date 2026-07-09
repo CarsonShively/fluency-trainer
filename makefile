@@ -28,11 +28,14 @@ install: $(STAMP)
 download-wav2vec2: $(STAMP)
 	cd $(ROOT) && $(PY) download_wav2vec2.py
 
-build_samples: $(STAMP)
+build-samples: $(STAMP)
 	cd $(ROOT) && $(PY) build_samples.py
 
 build-vocab: $(STAMP)
 	cd $(ROOT) && $(PY) build_vocab.py
+
+extract-user-audio-logits: $(STAMP)
+	cd $(ROOT) && $(PY) extract_user_audio_logits.py
 
 build-model: $(STAMP)
 	cd $(ROOT) && $(PY) build_model.py

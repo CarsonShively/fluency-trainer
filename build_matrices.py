@@ -6,8 +6,8 @@ import soundfile as sf
 import numpy as np
 import shutil
 
-# fix stored paths before running
 def build_matrices():
+    print("Starting...")
     
     out_path = Path(__file__).resolve().parents[0] / "data/matrices"
     
@@ -36,6 +36,8 @@ def build_matrices():
     with open(samples_path / "test.json", "r") as con:
         test_samples = json.load(con)
     
+    print("loads complete")
+    
     train_user_audio = []
     train_target_phones = []
     train_target_classes = []
@@ -53,10 +55,10 @@ def build_matrices():
         (val_samples, val_user_audio, val_target_phones, val_target_classes), 
         (test_samples, test_user_audio, test_target_phones, test_target_classes)
         )
-    
+    loop_counter = 1
     for split, audio, phones, classes in samples:
-        
-        for sample in split:
+        sample_counter = 0
+        for sample in split.values():
             audio_path = Path(__file__).resolve().parents[0] / sample["user_audio_path"]
             waveform, sample_rate = sf.read(audio_path)
             
@@ -88,6 +90,17 @@ def build_matrices():
             phones.append(target_phones_append)
             classes.append(sample["target_classes"])
             
+            sample_counter += 1
+            if loop_counter == 1:
+                print(f"train sample complete: {sample_counter}")
+            elif loop_counter == 2:
+                print(f"val sample complete: {sample_counter}")
+            else:
+                print(f"test sample complete: {sample_counter}") 
+        
+        loop_counter += 1
+    print("initial matrices complete.")
+            
     audio_matrices = (train_user_audio, val_user_audio, test_user_audio)
     
     audio_max_len = 0
@@ -104,6 +117,7 @@ def build_matrices():
         for phones in matrix:
             target_phones_max_len = max(target_phones_max_len, len(phones))
             
+    print("lengths esstablished")
     
     train_padded_audio = []
     val_padded_audio = []
@@ -148,6 +162,8 @@ def build_matrices():
                 to_append.append(-1)
                 
             append_padded_classes.append(to_append)
+            
+    print("matrices padded.")
             
     train_audio_numpy = np.array(train_padded_audio).astype(np.float32)
     val_audio_numpy = np.array(val_padded_audio).astype(np.float32)
@@ -223,6 +239,8 @@ def build_matrices():
     np.save(out_path / "train_target_classes_mask.npy", train_classes_mask)
     np.save(out_path / "val_target_classes_mask.npy", val_classes_mask)
     np.save(out_path / "test_target_classes_mask.npy", test_classes_mask)
+    
+    print("matrices saved.")
     
 if __name__ == "__main__":
     build_matrices()
