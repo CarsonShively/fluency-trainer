@@ -37,5 +37,8 @@ build-vocab: $(STAMP)
 extract-user-audio-logits: $(STAMP)
 	cd $(ROOT) && $(PY) extract_user_audio_logits.py
 
+build-matrices: $(STAMP)
+	cd $(ROOT) && $(PY) build_matrices.py
+
 build-model: $(STAMP)
 	cd $(ROOT) && $(PY) build_model.py
