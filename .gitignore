@@ -2,5 +2,5 @@
 scratch_notes.txt
 outline.txt
 *.egg-info/
-wav2vec2/
 __pycache__/
+wav2vec2/

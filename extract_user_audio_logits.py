@@ -10,6 +10,12 @@ import shutil
 def extract_user_audio_logits():
     print("Starting...")
     
+    if not torch.cuda.is_available():
+        raise RuntimeError("no CUDA GPU available")
+    
+    device = torch.device("cuda")
+    print("device created sucessfully.")
+    
     out_path = Path(__file__).resolve().parents[0] / "data/user_audio"
     
     if out_path.is_dir():
@@ -31,6 +37,7 @@ def extract_user_audio_logits():
     processor = AutoProcessor.from_pretrained(wav2vec2_path, local_files_only=True)
     model = AutoModelForCTC.from_pretrained(wav2vec2_path, local_files_only=True)
     model.eval()
+    model.to(device)
     
     samples_path = Path(__file__).resolve().parents[0] / "data/samples"
     
@@ -56,10 +63,10 @@ def extract_user_audio_logits():
                 waveform,
                 sampling_rate=expected_sample_rate,
                 return_tensors="pt"
-            )
+            ).to(device)
         
         
-        with torch.no_grad():
+        with torch.inference_mode():
             output_audio = model(**processed_audio) 
             
         output_logits = output_audio.logits
@@ -82,10 +89,9 @@ def extract_user_audio_logits():
                 waveform,
                 sampling_rate=expected_sample_rate,
                 return_tensors="pt"
-            )
+            ).to(device)
         
-        
-        with torch.no_grad():
+        with torch.inference_mode():
             output_audio = model(**processed_audio) 
             
         output_logits = output_audio.logits
@@ -109,10 +115,9 @@ def extract_user_audio_logits():
                 waveform,
                 sampling_rate=expected_sample_rate,
                 return_tensors="pt"
-            )
+            ).to(device)
         
-        
-        with torch.no_grad():
+        with torch.inference_mode():
             output_audio = model(**processed_audio) 
             
         output_logits = output_audio.logits
