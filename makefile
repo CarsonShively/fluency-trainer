@@ -7,6 +7,8 @@ PY := $(VENV)/bin/python
 
 UV := $(VENV)/bin/uv
 
+HF := $(VENV)/bin/hf
+
 STAMP := $(VENV)/installed
 
 $(PY):
@@ -42,3 +44,9 @@ build-matrices: $(STAMP)
 
 build-model: $(STAMP)
 	cd $(ROOT) && $(PY) build_model.py
+
+hf-dataset-login: $(STAMP)
+	$(HF) auth login
+
+hf-upload: $(STAMP)
+	cd $(ROOT) && $(PY) hf_upload.py

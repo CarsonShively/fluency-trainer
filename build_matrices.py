@@ -2,8 +2,21 @@ import json
 from pathlib import Path
 import numpy as np
 import shutil
+from huggingface_hub import snapshot_download, get_token, HfApi
 
 def build_matrices():
+    
+    local_data = Path(__file__).resolve().parents[0] / "data"
+    
+    if local_data.is_dir():    
+        shutil.rmtree(local_data)
+        
+    snapshot_download(
+        repo_id="Carson-Shively/fluency-trainer",
+        repo_type="dataset",
+        local_dir=local_data
+    )
+    
     print("Starting...")
     
     out_path = Path(__file__).resolve().parents[0] / "data/matrices"
@@ -278,6 +291,18 @@ def build_matrices():
     print(f"train target classes mask: {train_classes_mask.shape}")
     print(f"val target classes mask: {val_classes_mask.shape}")
     print(f"test target classes mask: {test_classes_mask.shape}")
+    
+    if get_token() != None:
+        api = HfApi()
+        api.upload_folder(
+            repo_id="Carson-Shively/fluency-trainer",
+            repo_type="dataset",
+            folder_path=out_path,
+            path_in_repo="matrices",
+            delete_patterns="**"
+        )
+        
+        
     
 if __name__ == "__main__":
     build_matrices()

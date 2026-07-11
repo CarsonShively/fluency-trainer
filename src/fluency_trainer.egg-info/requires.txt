@@ -6,3 +6,4 @@ torch<3,>=2.7
 soundfile<1,>=0.12
 transformers<6,>=4.50
 phonemizer<4,>=3.3
+huggingface-hub<2,>=1
