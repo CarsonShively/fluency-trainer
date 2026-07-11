@@ -13,26 +13,10 @@ def build_matrices():
         repo_id="Carson-Shively/fluency-trainer",
         repo_type="dataset",
         local_dir=local_data,
-        allow_patterns="samples/**"
+        allow_patterns=["samples/**", "vocab/**", "user_audio/**"]
     )
         
-    print("samples loaded to local")
-       
-    snapshot_download(
-        repo_id="Carson-Shively/fluency-trainer",
-        repo_type="dataset",
-        local_dir=local_data,
-        allow_patterns="vocab/**"
-    )
-        
-    print("vocab loaded to local")
-    
-    snapshot_download(
-        repo_id="Carson-Shively/fluency-trainer",
-        repo_type="dataset",
-        local_dir=local_data,
-        allow_patterns="user_audio/**"
-    )
+    print("data loaded to local")
         
     print("user audio loaded to local")
     

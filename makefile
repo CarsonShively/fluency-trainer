@@ -48,5 +48,8 @@ build-model: $(STAMP)
 hf-dataset-login: $(STAMP)
 	$(HF) auth login
 
+hf-dataset-logout: $(STAMP)
+	$(HF) auth logout
+
 hf-upload: $(STAMP)
 	cd $(ROOT) && $(PY) hf_upload.py
