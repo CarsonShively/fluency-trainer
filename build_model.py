@@ -21,6 +21,7 @@ from huggingface_hub import snapshot_download
 # google drive cache?
 # hf local vs cache?
 # snapshot no local dir == returns a string cache path (put inside Path() to return path object) 
+# stay in colab with hf storage (code in vscode and clone to colab to run)
 
 def build_model():
     
@@ -32,55 +33,55 @@ def build_model():
     
     train_user_audio = np.load(cache_data / "matrices/train_user_audio.npy")
     val_user_audio = np.load(cache_data / "matrices/val_user_audio.npy")
-    test_user_audio = np.load(cache_data / "matrices/test_user_audio.npy")
 
     train_user_audio_mask = np.load(cache_data / "matrices/train_user_audio_mask.npy")
     val_user_audio_mask = np.load(cache_data / "matrices/val_user_audio_mask.npy")
-    test_user_audio_mask = np.load(cache_data / "matrices/test_user_audio_mask.npy")
 
     train_target_phonemes = np.load(cache_data / "matrices/train_target_phonemes.npy")
     val_target_phonemes = np.load(cache_data / "matrices/val_target_phonemes.npy")
-    test_target_phonemes = np.load(cache_data / "matrices/test_target_phonemes.npy")
 
     train_target_phonemes_mask = np.load(cache_data / "matrices/train_target_phonemes_mask.npy")
     val_target_phonemes_mask = np.load(cache_data / "matrices/val_target_phonemes_mask.npy")
-    test_target_phonemes_mask = np.load(cache_data / "matrices/test_target_phonemes_mask.npy")
     
     
     train_target_classes = np.load(cache_data / "matrices/train_target_classes.npy")
     val_target_classes = np.load(cache_data / "matrices/val_target_classes.npy")
-    test_target_classes = np.load(cache_data / "matrices/test_target_classes.npy")
 
     train_target_classes_mask = np.load(cache_data / "matrices/train_target_classes_mask.npy")
     val_target_classes_mask = np.load(cache_data / "matrices/val_target_classes_mask.npy")
-    test_target_classes_mask = np.load(cache_data / "matrices/test_target_classes_mask.npy")
     
     print("point 1")
     
     train_user_audio_tensor = tf.convert_to_tensor(train_user_audio, dtype=tf.float32)
+    del train_user_audio
     val_user_audio_tensor = tf.convert_to_tensor(val_user_audio, dtype=tf.float32)
-    test_user_audio_tensor = tf.convert_to_tensor(test_user_audio, dtype=tf.float32)
+    del val_user_audio
 
     train_user_audio_mask_tensor = tf.convert_to_tensor(train_user_audio_mask, dtype=tf.float32)
+    del train_user_audio_mask
+    
     val_user_audio_mask_tensor = tf.convert_to_tensor(val_user_audio_mask, dtype=tf.float32)
-    test_user_audio_mask_tensor = tf.convert_to_tensor(test_user_audio_mask, dtype=tf.float32)
+    del val_user_audio_mask
 
     train_target_phonemes_tensor = tf.convert_to_tensor(train_target_phonemes, dtype=tf.int32)
+    del train_target_phonemes
     val_target_phonemes_tensor = tf.convert_to_tensor(val_target_phonemes, dtype=tf.int32)
-    test_target_phonemes_tensor = tf.convert_to_tensor(test_target_phonemes, dtype=tf.int32)
+    del val_target_phonemes
 
     train_target_phonemes_mask_tensor = tf.convert_to_tensor(train_target_phonemes_mask, dtype=tf.int32)
+    del train_target_phonemes_mask
     val_target_phonemes_mask_tensor = tf.convert_to_tensor(val_target_phonemes_mask, dtype=tf.int32)
-    test_target_phonemes_mask_tensor = tf.convert_to_tensor(test_target_phonemes_mask, dtype=tf.int32)
-    
+    del val_target_phonemes_mask
     
     train_target_classes_tensor = tf.convert_to_tensor(train_target_classes, dtype=tf.int32)
+    del train_target_classes
     val_target_classes_tensor = tf.convert_to_tensor(val_target_classes, dtype=tf.int32)
-    test_target_classes_tensor = tf.convert_to_tensor(test_target_classes, dtype=tf.int32)
+    del val_target_classes
 
     train_target_classes_mask_tensor = tf.convert_to_tensor(train_target_classes_mask, dtype=tf.int32)
+    del train_target_classes_mask
     val_target_classes_mask_tensor = tf.convert_to_tensor(val_target_classes_mask, dtype=tf.int32)
-    test_target_classes_mask_tensor = tf.convert_to_tensor(test_target_classes_mask, dtype=tf.int32)
+    del val_target_classes_mask
     
     print("point 2")
     
@@ -108,22 +109,11 @@ def build_model():
         val_target_classes_mask_tensor
     ))
         
-    test_dataset = tf.data.Dataset.from_tensor_slices((
-        {
-            "user_audio": test_user_audio_tensor,
-            "user_audio_mask": test_user_audio_mask_tensor,
-            "target_phones": test_target_phonemes_tensor,
-            "target_phones_mask": test_target_phonemes_mask_tensor
-        },
-        test_target_classes_tensor,
-        test_target_classes_mask_tensor
-    ))
     
     print("point 3")
     
-    train_dataset_batched = train_dataset.shuffle(len(train_target_classes_tensor)).batch(16)
+    train_dataset_batched = train_dataset.shuffle(buffer_size=1000).batch(16)
     val_dataset_batched = val_dataset.batch(16)
-    test_dataset_batched = test_dataset.batch(16)
     
     print("load successful")
     
