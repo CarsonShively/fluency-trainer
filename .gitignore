@@ -1,7 +1,7 @@
 .venv/
 scratch_notes.txt
 outline.txt
-*.egg-info/
+fluency_trainer.egg-info/
 __pycache__/
 wav2vec2/
 data/user_audio/

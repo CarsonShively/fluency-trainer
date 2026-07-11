@@ -8,14 +8,12 @@ def build_matrices():
     
     local_data = Path(__file__).resolve().parents[0] / "data"
     
-    if local_data.is_dir():    
-        shutil.rmtree(local_data)
-        
-    snapshot_download(
-        repo_id="Carson-Shively/fluency-trainer",
-        repo_type="dataset",
-        local_dir=local_data
-    )
+    if not local_data.is_dir():    
+        snapshot_download(
+            repo_id="Carson-Shively/fluency-trainer",
+            repo_type="dataset",
+            local_dir=local_data
+        )
     
     print("Starting...")
     
