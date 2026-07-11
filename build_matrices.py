@@ -8,33 +8,31 @@ def build_matrices():
     
     local_data = Path(__file__).resolve().parents[0] / "data"
     
-    if not (local_data / "samples").is_dir():    
-        snapshot_download(
-            repo_id="Carson-Shively/fluency-trainer",
-            repo_type="dataset",
-            local_dir=local_data,
-            allow_patterns="samples/**"
-        )
+   
+    snapshot_download(
+        repo_id="Carson-Shively/fluency-trainer",
+        repo_type="dataset",
+        local_dir=local_data,
+        allow_patterns="samples/**"
+    )
         
     print("samples loaded to local")
-    
-    if not (local_data / "vocab").is_dir():    
-        snapshot_download(
-            repo_id="Carson-Shively/fluency-trainer",
-            repo_type="dataset",
-            local_dir=local_data,
-            allow_patterns="vocab/**"
-        )
+       
+    snapshot_download(
+        repo_id="Carson-Shively/fluency-trainer",
+        repo_type="dataset",
+        local_dir=local_data,
+        allow_patterns="vocab/**"
+    )
         
     print("vocab loaded to local")
     
-    if not (local_data / "user_audio").is_dir():    
-        snapshot_download(
-            repo_id="Carson-Shively/fluency-trainer",
-            repo_type="dataset",
-            local_dir=local_data,
-            allow_patterns="user_audio/**"
-        )
+    snapshot_download(
+        repo_id="Carson-Shively/fluency-trainer",
+        repo_type="dataset",
+        local_dir=local_data,
+        allow_patterns="user_audio/**"
+    )
         
     print("user audio loaded to local")
     
