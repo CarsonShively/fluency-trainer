@@ -197,59 +197,84 @@ def build_matrices():
         padded[:sample.shape[0]] = sample
         train_audio_padded.append(padded)
         
+    del train_user_audio
+        
     for sample in val_user_audio:
         padded = np.zeros((val_audio_pad_len, sample.shape[1]), dtype=np.float32)
         padded[:sample.shape[0]] = sample
         val_audio_padded.append(padded)
+        
+    del val_user_audio
         
     for sample in test_user_audio:
         padded = np.zeros((test_audio_pad_len, sample.shape[1]), dtype=np.float32)
         padded[:sample.shape[0]] = sample
         test_audio_padded.append(padded)
         
+    del test_user_audio
+        
     for sample in train_target_phones:
         padded = np.zeros(train_phones_pad_len, dtype=np.int32)
         padded[:sample.shape[0]] = sample
         train_phones_padded.append(padded)
         
+    del train_target_phones
+        
     for sample in val_target_phones:
         padded = np.zeros(val_phones_pad_len, dtype=np.int32)
         padded[:sample.shape[0]] = sample
         val_phones_padded.append(padded)
+       
+    del val_target_phones
         
     for sample in test_target_phones:
         padded = np.zeros(test_phones_pad_len, dtype=np.int32)
         padded[:sample.shape[0]] = sample
         test_phones_padded.append(padded)
         
+    del test_target_phones
+        
     for sample in train_target_classes:
         padded = np.full(train_classes_pad_len, -1, dtype=np.int32)
         padded[:sample.shape[0]] = sample
         train_classes_padded.append(padded)        
         
+    del train_target_classes
         
     for sample in val_target_classes:
         padded = np.full(val_classes_pad_len, -1, dtype=np.int32)
         padded[:sample.shape[0]] = sample
         val_classes_padded.append(padded)    
         
+    del val_target_classes
+        
     for sample in test_target_classes:
         padded = np.full(test_classes_pad_len, -1, dtype=np.int32)
         padded[:sample.shape[0]] = sample
         test_classes_padded.append(padded)   
         
+    del test_target_classes
      
     train_audio_numpy = np.array(train_audio_padded)
+    del train_audio_padded
     val_audio_numpy = np.array(val_audio_padded)
+    del val_audio_padded
     test_audio_numpy = np.array(test_audio_padded)
+    del test_audio_padded
     
     train_phones_numpy = np.array(train_phones_padded)
+    del train_phones_padded
     val_phones_numpy = np.array(val_phones_padded)
+    del val_phones_padded
     test_phones_numpy = np.array(test_phones_padded)
+    del test_phones_padded
     
     train_classes_numpy = np.array(train_classes_padded)
+    del train_classes_padded
     val_classes_numpy = np.array(val_classes_padded)
+    del val_classes_padded
     test_classes_numpy = np.array(test_classes_padded)
+    del test_classes_padded
         
     train_audio_mask = np.any(train_audio_numpy != 0.0, axis=-1).astype(np.float32)
     val_audio_mask = np.any(val_audio_numpy != 0.0, axis=-1).astype(np.float32)
