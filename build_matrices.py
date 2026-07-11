@@ -6,14 +6,41 @@ from huggingface_hub import snapshot_download, get_token, HfApi
 
 def build_matrices():
     
-    local_data = Path(__file__).resolve().parents[0] / "data"
+    local_data_samples = Path(__file__).resolve().parents[0] / "data/samples"
     
-    if not local_data.is_dir():    
+    if not local_data_samples.is_dir():    
         snapshot_download(
             repo_id="Carson-Shively/fluency-trainer",
             repo_type="dataset",
-            local_dir=local_data
+            local_dir=local_data_samples,
+            allow_patterns="samples/**"
         )
+        
+    print("samples loaded to local")
+    
+    local_data_vocab = Path(__file__).resolve().parents[0] / "data/vocab"
+    
+    if not local_data_vocab.is_dir():    
+        snapshot_download(
+            repo_id="Carson-Shively/fluency-trainer",
+            repo_type="dataset",
+            local_dir=local_data_vocab,
+            allow_patterns="vocab/**"
+        )
+        
+    print("vocab loaded to local")
+    
+    local_data_user_audio = Path(__file__).resolve().parents[0] / "data/user_audio"
+    
+    if not local_data_user_audio.is_dir():    
+        snapshot_download(
+            repo_id="Carson-Shively/fluency-trainer",
+            repo_type="dataset",
+            local_dir=local_data_user_audio,
+            allow_patterns="user_audio/**"
+        )
+        
+    print("user audio loaded to local")
     
     print("Starting...")
     
