@@ -135,8 +135,8 @@ def build_model():
     
     
     
-    user_audio_encoder = UserPhonemeEncoder(max_phonemes=audio_len, uncertianty_vector_size=uncertainty_vecctor_size, dense=64, dense1=128, dropout=0.1)
-    target_phoneme_encoder = TargetPhonemeEncoder(vocab_size=vocab_len, max_phonemes=target_len, embeded_vector_size=128, dense=64, dense1=128, dropout=0.1)
+    user_audio_encoder = UserPhonemeEncoder(max_phonemes=audio_len, uncertianty_vector_size=uncertainty_vecctor_size, dense_width=64, dense1_width=128, dropout=0.1)
+    target_phoneme_encoder = TargetPhonemeEncoder(vocab_size=vocab_len, max_phonemes=target_len, embeded_vector_size=128, dense_width=64, dense1_width=128, dropout=0.1)
     cross_attention_transformer = CrossAttentionTransformer(embeded_vector_size=128, desne=64, dense1=128, dropout=0.1)
     classifier_head = ClassifierHead(embeded_vector_size=128, desne=64, dense1=128, dropout=0.1)
     print("point 6")
