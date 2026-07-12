@@ -69,6 +69,8 @@ def train(train_dataset, val_dataset, user_encoder, target_encoder, transformer,
             
         avg_loss = total_loss / batch_counter
         
+        print(f"epoch: {epoch+1}, current val loss: {avg_loss}, best val loss: {best_loss}")
+        
         if avg_loss + epsilon < best_loss:
             best_loss = avg_loss
             patience_counter = 0
