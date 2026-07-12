@@ -143,7 +143,7 @@ def build_model():
     optimizer = tf.keras.optimizers.AdamW(learning_rate=3e-4, weight_decay=1e-4)
     
     loss_fn = tf.losses.SparseCategoricalCrossentropy(from_logits=True, reduction="none")
-    
+    print("point 7")
     val_loss = train(train_dataset=train_dataset_batched, val_dataset=val_dataset_batched, user_encoder=user_audio_encoder, target_encoder=target_phoneme_encoder, transformer=cross_attention_transformer, classifier=classifier_head, optimizer=optimizer, loss_fn=loss_fn)
     
     print(f"val loss: {val_loss}")
