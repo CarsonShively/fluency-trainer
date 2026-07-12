@@ -24,7 +24,7 @@ def train(train_dataset, val_dataset, user_encoder, target_encoder, transformer,
                 
                 loss_masked = loss * classes_mask
                 
-                loss_avg = tf.reduce_sum(loss_masked) / tf.reduce_sum(labels_mask)
+                loss_avg = tf.reduce_sum(loss_masked) / tf.reduce_sum(tf.cast(labels_mask, dtype=loss_masked.dtype))
                 
             all_variables = user_encoder.trainable_variables + target_encoder.trainable_variables + transformer.trainable_variables + classifier.trainable_variables
             
@@ -49,7 +49,7 @@ def train(train_dataset, val_dataset, user_encoder, target_encoder, transformer,
             
             loss_masked = loss * classes_mask
             
-            loss_avg = tf.reduce_sum(loss_masked) / tf.reduce_sum(labels_mask)
+            loss_avg = tf.reduce_sum(loss_masked) / tf.reduce_sum(tf.cast(labels_mask, dtype=labels_mask.dtype))
             
             total_loss += loss_avg
             
