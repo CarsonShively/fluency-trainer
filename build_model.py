@@ -9,7 +9,7 @@ import tensorflow as tf
 from pathlib import Path
 import shutil
 import json
-from huggingface_hub import snapshot_download, HfApi
+from huggingface_hub import snapshot_download, HfApi, get_token
 
 # snapshot == function that executes and returns nothing
 # masks float vs int
@@ -67,9 +67,8 @@ def build_model():
     audio_len = max(train_user_audio.shape[1], val_user_audio.shape[1], test_user_audio.shape[1])
     target_len = max(train_target_phonemes.shape[1], val_target_phonemes.shape[1], test_target_phonemes.shape[1])
     uncertainty_vecctor_size = train_user_audio.shape[2]
-    
-    print(f"train phones y: {train_target_phonemes.shape[1]}, train classes y: {train_target_classes.shape[1]}")
-    print(f"val phones y: {val_target_phonemes.shape[1]}, val classes y: {val_target_classes.shape[1]}")
+
+    print("point 1")
     
     del test_user_audio, test_target_phonemes
     
@@ -104,6 +103,7 @@ def build_model():
     val_target_classes_mask_tensor = tf.convert_to_tensor(val_target_classes_mask, dtype=tf.int32)
     del val_target_classes_mask
     
+    print("point 2")
     
     train_dataset = tf.data.Dataset.from_tensor_slices((
         {
@@ -127,11 +127,11 @@ def build_model():
         val_target_classes_tensor,
         val_target_classes_mask_tensor
     ))
-    
+    print("point 3")
     train_dataset_batched = train_dataset.shuffle(buffer_size=1000).batch(16)
     val_dataset_batched = val_dataset.batch(16)
     
-    print("load successful")
+    print("point 5")
     
     
     
@@ -139,7 +139,7 @@ def build_model():
     target_phoneme_encoder = TargetPhonemeEncoder(vocab_size=vocab_len, max_phonemes=target_len, embeded_vector_size=128, dense=64, dense1=128, dropout=0.1)
     cross_attention_transformer = CrossAttentionTransformer(embeded_vector_size=128, desne=64, dense1=128, dropout=0.1)
     classifier_head = ClassifierHead(embeded_vector_size=128, desne=64, dense1=128, dropout=0.1)
-    
+    print("point 6")
     optimizer = tf.keras.optimizers.AdamW(learning_rate=3e-4, weight_decay=1e-4)
     
     loss_fn = tf.losses.SparseCategoricalCrossentropy(from_logits=True, reduction="none")
@@ -163,13 +163,14 @@ def build_model():
     
     api = HfApi()
 
-    api.upload_folder(
-        folder_path=out_path,
-        repo_id="Carson-Shively/fluency-trainer",
-        repo_type="model",
-        path_in_repo="speech2target",
-        delete_patterns="*"   
-    )
+    if get_token() != None:
+        api.upload_folder(
+            folder_path=out_path,
+            repo_id="Carson-Shively/fluency-trainer",
+            repo_type="model",
+            path_in_repo="speech2target",
+            delete_patterns="*"   
+        )
     
 if __name__ == "__main__":
     build_model()
