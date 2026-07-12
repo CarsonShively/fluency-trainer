@@ -11,8 +11,8 @@ def train(train_dataset, val_dataset, user_encoder, target_encoder, transformer,
         for batch, labels, labels_mask in train_dataset:
             
             with tf.GradientTape() as tape:
-                user_attention = user_encoder(x=batch["user_audio"], mask=batch["user_audio_mask"], training=True)
-                target_attention = target_encoder(x=batch["target_phones"], mask=batch["target_phones_mask"], training=True)
+                user_attention = user_encoder(x=batch["user_audio"], padding_mask=batch["user_audio_mask"], training=True)
+                target_attention = target_encoder(x=batch["target_phones"], padding_mask=batch["target_phones_mask"], training=True)
                 
                 cross_attention = transformer(user_attention=user_attention, target_attention=target_attention, user_mask=batch["user_audio_mask"], target_mask=batch["target_phones_mask"], training=True)
                 
@@ -36,8 +36,8 @@ def train(train_dataset, val_dataset, user_encoder, target_encoder, transformer,
             
         for batch, labels, labels_mask in val_dataset:
             
-            user_attention = user_encoder(x=batch["user_audio"], mask=batch["user_audio_mask"], training=False)
-            target_attention = target_encoder(x=batch["target_phones"], mask=batch["target_phones_mask"], training=False)
+            user_attention = user_encoder(x=batch["user_audio"], padding_mask=batch["user_audio_mask"], training=False)
+            target_attention = target_encoder(x=batch["target_phones"], padding_mask=batch["target_phones_mask"], training=False)
             
             cross_attention = transformer(user_attention=user_attention, target_attention=target_attention, user_mask=batch["user_audio_mask"], target_mask=batch["target_phones_mask"], training=False)
             

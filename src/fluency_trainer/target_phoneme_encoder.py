@@ -81,16 +81,16 @@ class TargetPhonemeEncoder(tf.keras.Model):
 
         self.dropout_layer = tf.keras.layers.Dropout(dropout)
 
-    def call(self, x, mask, training):
+    def call(self, x, padding_mask, training):
         
         if not tf.is_tensor(x):
             raise ValueError("x not tensor")
         
-        context_mask = mask[:, tf.newaxis, :]
+        context_mask = padding_mask[:, tf.newaxis, :]
         context_mask = tf.cast(context_mask, dtype=tf.bool)
-        output_mask = mask[:, :, tf.newaxis]
+        output_mask = padding_mask[:, :, tf.newaxis]
         
-        embeded_matrix = self.phoneme_embedding_map[x]
+        embeded_matrix = tf.gather(self.phoneme_embedding_map, x)
         
         batch_sequence_len = tf.shape(embeded_matrix)[1]
         
