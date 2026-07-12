@@ -1,10 +1,11 @@
 import tensorflow as tf
 
 class CrossAttentionTransformer(tf.keras.Model):
-    def __init__(self, embeded_vector_size, dense, dense1, dropout):
+    def __init__(self, embeded_vector_size, uncertainty_vector_size, dense, dense1, dropout):
         super().__init__()
         
         self.embeded_vector_size = embeded_vector_size
+        self.uncertainty_vector_size = uncertainty_vector_size
         self.dense = dense
         self.dense1 = dense1
         self.dropout = dropout
@@ -17,12 +18,12 @@ class CrossAttentionTransformer(tf.keras.Model):
         )
         
         self.k = tf.Variable(
-            transform_initialier(shape=[embeded_vector_size, dense]),
+            transform_initialier(shape=[uncertainty_vector_size, dense]),
             trainable=True
         )
 
         self.v = tf.Variable(
-            transform_initialier(shape=[embeded_vector_size, dense]),
+            transform_initialier(shape=[uncertainty_vector_size, dense]),
             trainable=True
         )
         
