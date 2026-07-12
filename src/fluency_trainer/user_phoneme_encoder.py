@@ -1,12 +1,13 @@
 import tensorflow as tf
 
 class UserPhonemeEncoder(tf.keras.Model):
-    def __init__(self, max_phonemes, uncertianty_vector_size, dense_width, dense1_width):
+    def __init__(self, max_phonemes, uncertianty_vector_size, dense_width, dense1_width, dropout):
         super().__init__()
         
         self.uncertianty_vector_size = uncertianty_vector_size
         self.max_phonemes = max_phonemes
         self.dense_width = dense_width
+        self.dropout = dropout
         
         lookup_initializer = tf.keras.initializers.RandomUniform(minval=-0.05, maxval=0.05) 
         transform_initializer = tf.keras.initializers.GlorotUniform()
@@ -62,19 +63,21 @@ class UserPhonemeEncoder(tf.keras.Model):
         
         self.layer_norm2 = tf.keras.layers.LayerNormalization()
 
+        self.dropout_layer = tf.keras.layers.Dropout(dropout)
 
 
-    def call(self, x, mask):
+    def call(self, x, mask, training):
         
         if not tf.is_tensor(x):
             raise ValueError("x not tensor")
         
-        mask = tf.cast(mask, tf.bool)
-        
         context_mask = mask[:, tf.newaxis, :]
+        context_mask = tf.cast(context_mask, dtype=tf.bool)
         output_mask = mask[:, :, tf.newaxis]
         
-        position_aware_matrix = x + self.position_map
+        batch_sequence_len = tf.shape(x)[1]
+        
+        position_aware_matrix = x + self.position_map[:batch_sequence_len]
         
         q_matrix = position_aware_matrix @ self.q
         k_matrix = position_aware_matrix @ self.k
@@ -82,7 +85,7 @@ class UserPhonemeEncoder(tf.keras.Model):
         
         transposed_k_matrix = tf.transpose(k_matrix, perm=[0, 2, 1])
         
-        context_matrix = (q_matrix @ transposed_k_matrix) / tf.sqrt(tf.cast(self.dense_width, tf.float32))
+        context_matrix = (q_matrix @ transposed_k_matrix) / tf.sqrt(tf.cast(self.dense_width, dtype=q_matrix.dtype))
         
         context_matrix_masked = tf.where(
             context_mask,
@@ -96,7 +99,7 @@ class UserPhonemeEncoder(tf.keras.Model):
         
         projected_attention_matrix = attention_matrix @ self.project_attention
 
-        residual_matrix = projected_attention_matrix + position_aware_matrix
+        residual_matrix = self.dropout_layer(projected_attention_matrix, training=training) + position_aware_matrix
         
         residual_matrix_norm = self.layer_norm1(residual_matrix)
         
@@ -106,7 +109,7 @@ class UserPhonemeEncoder(tf.keras.Model):
         
         layer2 = layer1_activation @ self.dense2 + self.bias2
         
-        residual2_matrix = residual_matrix_norm + layer2
+        residual2_matrix = residual_matrix_norm + self.dropout_layer(layer2, training=training)
         
         residual2_matrix_norm = self.layer_norm2(residual2_matrix)
         

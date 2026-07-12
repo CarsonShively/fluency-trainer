@@ -1,12 +1,13 @@
 import tensorflow as tf
 
 class CrossAttentionTransformer(tf.keras.Model):
-    def __init__(self, embeded_vector_size, dense, dense1):
+    def __init__(self, embeded_vector_size, dense, dense1, dropout):
         super().__init__()
         
         self.embeded_vector_size = embeded_vector_size
         self.dense = dense
         self.dense1 = dense1
+        self.dropout = dropout
         
         transform_initialier = tf.keras.initializers.GlorotUniform()
         
@@ -54,14 +55,15 @@ class CrossAttentionTransformer(tf.keras.Model):
         
         self.layer_norm2 = tf.keras.layers.LayerNormalization()
         
-
+        self.dropout_layer = tf.keras.layers.Dropout(dropout)
     
-    def call(self, target_attention, user_attention, user_mask, target_mask):
+    def call(self, target_attention, user_attention, user_mask, target_mask, training):
         
         if not tf.is_tensor(target_attention) or not tf.is_tensor(user_attention):
             raise TypeError("an attention matrix is not a tensor.")
         
         user_key_mask = user_mask[:, tf.newaxis, :]
+        user_key_mask = tf.cast(user_key_mask, dtype=tf.bool)
         output_mask = target_mask[:, :, tf.newaxis]
         
         
@@ -72,7 +74,7 @@ class CrossAttentionTransformer(tf.keras.Model):
         
         user_key_transposed = tf.transpose(user_key, perm=[0, 2, 1])
         
-        context = (target_query @ user_key_transposed) / tf.cast(tf.sqrt(self.dense), target_query.dtype)
+        context = (target_query @ user_key_transposed) / tf.sqrt(tf.cast(self.dense, target_query.dtype))
         
         context_masked = tf.where(
             user_key_mask,
@@ -86,7 +88,7 @@ class CrossAttentionTransformer(tf.keras.Model):
         
         projected_context_attention = cross_attention @ self.project_context_attention
         
-        residual = projected_context_attention + target_attention
+        residual = self.dropout_layer(projected_context_attention, training=training) + target_attention
         
         residual_norm = self.layer_norm1(residual)
         
@@ -96,7 +98,7 @@ class CrossAttentionTransformer(tf.keras.Model):
         
         layer2 = layer1_activation @ self.layer2 + self.bias2
         
-        residual2 = residual_norm + layer2
+        residual2 = residual_norm + self.dropout_layer(layer2, training=training)
         
         cross_attention = self.layer_norm2(residual2)
         

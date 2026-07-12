@@ -28,7 +28,7 @@ def train(train_dataset, val_dataset, user_encoder, target_encoder, transformer,
                 
             all_variables = user_encoder.trainable_variables + target_encoder.trainable_variables + transformer.trainable_variables + classifier.trainable_variables
             
-            gradients = tape.gradient(loss, all_variables)
+            gradients = tape.gradient(loss_avg, all_variables)
             optimizer.apply_gradients(zip(gradients, all_variables))
             
         total_loss = 0
@@ -53,7 +53,8 @@ def train(train_dataset, val_dataset, user_encoder, target_encoder, transformer,
             
             total_loss += loss_avg
             
-        batch_counter += 1
+            batch_counter += 1
+            
         avg_loss = total_loss / batch_counter
         
         if avg_loss + epsilon < best_loss:
