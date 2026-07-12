@@ -11,12 +11,12 @@ def train(train_dataset, val_dataset, user_encoder, target_encoder, transformer,
         for batch, labels, labels_mask in train_dataset:
             
             with tf.GradientTape() as tape:
-                user_attention = user_encoder(batch["user_audio"], batch["user_audio_mask"])
-                target_attention = target_encoder(batch["target_phones"], batch["target_phones_mask"])
+                user_attention = user_encoder(x=batch["user_audio"], mask=batch["user_audio_mask"], training=True)
+                target_attention = target_encoder(x=batch["target_phones"], mask=batch["target_phones_mask"], training=True)
                 
-                cross_attention = transformer(user_attention, target_attention, batch["user_audio_mask"], batch["target_phones_mask"])
+                cross_attention = transformer(user_attention=user_attention, target_attention=target_attention, user_mask=batch["user_audio_mask"], target_mask=batch["target_phones_mask"], training=True)
                 
-                logits = classifier(cross_attention)
+                logits = classifier(cross_attention, training=True)
                 
                 loss = loss_fn(labels, logits)
                 
@@ -36,12 +36,12 @@ def train(train_dataset, val_dataset, user_encoder, target_encoder, transformer,
             
         for batch, labels, labels_mask in val_dataset:
             
-            user_attention = user_encoder(batch["user_audio"], batch["user_audio_mask"])
-            target_attention = target_encoder(batch["target_phones"], batch["target_phones_mask"])
+            user_attention = user_encoder(x=batch["user_audio"], mask=batch["user_audio_mask"], training=False)
+            target_attention = target_encoder(x=batch["target_phones"], mask=batch["target_phones_mask"], training=False)
             
-            cross_attention = transformer(user_attention, target_attention, batch["user_audio_mask"], batch["target_phones_mask"])
+            cross_attention = transformer(user_attention=user_attention, target_attention=target_attention, user_mask=batch["user_audio_mask"], target_mask=batch["target_phones_mask"], training=False)
             
-            logits = classifier(cross_attention)
+            logits = classifier(cross_attention, training=False)
             
             loss = loss_fn(labels, logits)
             

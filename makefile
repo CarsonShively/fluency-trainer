@@ -45,10 +45,10 @@ build-matrices: $(STAMP)
 build-model: $(STAMP)
 	cd $(ROOT) && $(PY) build_model.py
 
-hf-dataset-login: $(STAMP)
+hf-login: $(STAMP)
 	$(HF) auth login
 
-hf-dataset-logout: $(STAMP)
+hf-logout: $(STAMP)
 	$(HF) auth logout
 
 hf-upload: $(STAMP)

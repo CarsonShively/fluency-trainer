@@ -9,7 +9,7 @@ import tensorflow as tf
 from pathlib import Path
 import shutil
 import json
-from huggingface_hub import snapshot_download
+from huggingface_hub import snapshot_download, HfApi
 
 # snapshot == function that executes and returns nothing
 # masks float vs int
@@ -26,6 +26,7 @@ from huggingface_hub import snapshot_download
 # tensorflow == all functinos methods etc detect gpu automatially (no code change needed at all, even at lowest level of tensor flow use)
 # verify target phones and classes have same len
 # training dropout later
+# fusion model?
 def build_model():
     
     cache_data = Path(snapshot_download(
@@ -134,10 +135,10 @@ def build_model():
     
     
     
-    user_audio_encoder = UserPhonemeEncoder(max_phonemes=audio_len, uncertianty_vector_size=uncertainty_vecctor_size, dense=64, dense1=128)
-    target_phoneme_encoder = TargetPhonemeEncoder(vocab_size=vocab_len, max_phonemes=target_len, embeded_vector_size=128, dense=64, dense1=128)
-    cross_attention_transformer = CrossAttentionTransformer(embeded_vector_size=128, desne=64, dense1=128)
-    classifier_head = ClassifierHead(embeded_vector_size=128, desne=64, dense1=128)
+    user_audio_encoder = UserPhonemeEncoder(max_phonemes=audio_len, uncertianty_vector_size=uncertainty_vecctor_size, dense=64, dense1=128, dropout=0.1)
+    target_phoneme_encoder = TargetPhonemeEncoder(vocab_size=vocab_len, max_phonemes=target_len, embeded_vector_size=128, dense=64, dense1=128, dropout=0.1)
+    cross_attention_transformer = CrossAttentionTransformer(embeded_vector_size=128, desne=64, dense1=128, dropout=0.1)
+    classifier_head = ClassifierHead(embeded_vector_size=128, desne=64, dense1=128, dropout=0.1)
     
     optimizer = tf.keras.optimizers.AdamW(learning_rate=3e-4, weight_decay=1e-4)
     
@@ -145,7 +146,30 @@ def build_model():
     
     val_loss = train(train_dataset=train_dataset_batched, val_dataset=val_dataset_batched, user_encoder=user_audio_encoder, target_encoder=target_phoneme_encoder, transformer=cross_attention_transformer, classifier=classifier_head, optimizer=optimizer, loss_fn=loss_fn)
     
+    print(f"val loss: {val_loss}")
+    
+    
+    out_path = Path(__file__).resolve().parents[0] / "fluency_trainer_model"
+    
+    if out_path.is_dir():
+        shutil.rmtree(out_path)
+    
+    out_path.mkdir(parents=True, exist_ok=True)
+    
+    user_audio_encoder.save_weights(out_path / "user_encoder.weights.h5")
+    user_audio_encoder.save_weights(out_path / "target_encoder.weights.h5")
+    user_audio_encoder.save_weights(out_path / "cross_attention_transformer.weights.h5")
+    user_audio_encoder.save_weights(out_path / "classifier_head.weights.h5")
+    
+    api = HfApi()
 
-        
+    api.upload_folder(
+        folder_path=out_path,
+        repo_id="Carson-Shively/fluency-trainer",
+        repo_type="model",
+        path_in_repo="speech2target",
+        delete_patterns="*"   
+    )
+    
 if __name__ == "__main__":
     build_model()
