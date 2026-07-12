@@ -11,22 +11,7 @@ import shutil
 import json
 from huggingface_hub import snapshot_download, HfApi, get_token
 
-# snapshot == function that executes and returns nothing
-# masks float vs int
-# data.from tensor slices == takes in touple 
-# load train and val free then load test
-# go lower in the backprop?
-# only shuffle train batches
-# cache here tracks not stores (doesnt duplicate)
-# google drive cache?
-# hf local vs cache?
-# snapshot no local dir == returns a string cache path (put inside Path() to return path object) 
-# stay in colab with hf storage (code in vscode and clone to colab to run)
-# go lower in code for gradient calc and back prop? (later?)
-# tensorflow == all functinos methods etc detect gpu automatially (no code change needed at all, even at lowest level of tensor flow use)
-# verify target phones and classes have same len
-# training dropout later
-# fusion model?
+
 def build_model():
     
     cache_data = Path(snapshot_download(

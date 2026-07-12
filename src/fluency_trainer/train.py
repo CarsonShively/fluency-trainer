@@ -18,7 +18,13 @@ def train(train_dataset, val_dataset, user_encoder, target_encoder, transformer,
                 
                 logits = classifier(cross_attention, training=True)
                 
-                loss = loss_fn(labels, logits)
+                safe_labels = tf.where(
+                    labels == -1,
+                    tf.zeros_like(labels),
+                    labels
+                )
+                
+                loss = loss_fn(safe_labels, logits)
                 
                 classes_mask = tf.cast(labels_mask, tf.float32)
                 
@@ -43,7 +49,13 @@ def train(train_dataset, val_dataset, user_encoder, target_encoder, transformer,
             
             logits = classifier(cross_attention, training=False)
             
-            loss = loss_fn(labels, logits)
+            safe_labels = tf.where(
+                labels == -1,
+                tf.zeros_like(labels),
+                labels
+            )
+            
+            loss = loss_fn(safe_labels, logits)
             
             classes_mask = tf.cast(labels_mask, tf.float32)
             
