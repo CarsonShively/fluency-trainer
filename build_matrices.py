@@ -277,7 +277,7 @@ def build_matrices():
             repo_type="dataset",
             folder_path=out_path,
             path_in_repo="matrices",
-            delete_patterns="**"
+            delete_patterns="*"
         )
         
         
