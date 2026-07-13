@@ -1,8 +1,17 @@
 from pathlib import Path
 import json
 import shutil
-
+from huggingface_hub import snapshot_download, HfApi, get_token
 def build_samples():
+    
+    data_path = Path(__file__).resolve().parents[0] / "data"
+    
+    snapshot_download(
+        repo_id="Carson-Shively/fluency-trainer",
+        repo_type="dataset",
+        local_dir=data_path,
+        allow_patterns="speechocean762/**"
+    )
     
     train_wav_path = Path(__file__).resolve().parents[0] / "data/speechocean762/train/wav.scp"
     test_wav_path = Path(__file__).resolve().parents[0] / "data/speechocean762/test/wav.scp"
@@ -31,16 +40,20 @@ def build_samples():
             
             
             target_phonemes = []
-            target_classes = []
-                
+            scores = []
+            
+            scores.append(scores_dict[sample_id]["accuracy"])
+            scores.append(scores_dict[sample_id]["fluency"])
+            scores.append(scores_dict[sample_id]["prosodic"])
+            scores.append(scores_dict[sample_id]["total"])
+            
             for word in scores_dict[sample_id]["words"]:
                 target_phonemes.extend(word["phones"])
-                target_classes.extend(word["phones-accuracy"])
                     
             sample = {
                 "user_audio_path": str(user_audio_path),
                 "target_phonemes": target_phonemes,
-                "target_classes": target_classes
+                "scores": scores
             }
             
             if sample_number < val_split_index:
@@ -63,16 +76,20 @@ def build_samples():
             user_audio_path = f"data/speechocean762/{parts[1]}"
             
             target_phonemes = []
-            target_classes = []
+            scores = []
+            
+            scores.append(scores_dict[sample_id]["accuracy"])
+            scores.append(scores_dict[sample_id]["fluency"])
+            scores.append(scores_dict[sample_id]["prosodic"])
+            scores.append(scores_dict[sample_id]["total"])
                 
             for word in scores_dict[sample_id]["words"]:
                 target_phonemes.extend(word["phones"])
-                target_classes.extend(word["phones-accuracy"])
                     
             sample = {
                 "user_audio_path": str(user_audio_path),
                 "target_phonemes": target_phonemes,
-                "target_classes": target_classes
+                "scores": scores
             }
             
             test_samples[sample_id] = sample
@@ -97,7 +114,19 @@ def build_samples():
     with open(out_path / "test.json", "w") as con:
         json.dump(test_samples, con)
     
-    print("samples saved.")
+    
+    if get_token() is not None:
+        api = HfApi()
+        api.upload_folder(
+            folder_path=out_path,
+            path_in_repo="samples",
+            repo_id="Carson-Shively/fluency-trainer",
+            repo_type="dataset",
+            delete_patterns="*"
+        )
+        print("samples uploaded.")
+    else:
+        print("samples local")
     
 if __name__ == "__main__":
     build_samples()

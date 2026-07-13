@@ -48,7 +48,7 @@ def build_matrices():
     
     train_user_audio = []
     train_target_phones = []
-    train_target_classes = []
+    train_scores = []
     
     train_audio_path = Path(__file__).resolve().parents[0] / "data" / "user_audio" / "train"
     
@@ -65,14 +65,14 @@ def build_matrices():
                 target_phones_ids.append(vocab["<UNK>"])
         
         target_phones_numpy = np.array(target_phones_ids)
-        target_classes_numpy = np.array(sample["target_classes"])
+        scores_numpy = np.array(sample["scores"])
         
         train_target_phones.append(target_phones_numpy)
-        train_target_classes.append(target_classes_numpy)
+        train_scores.append(scores_numpy)
         
     val_user_audio = []
     val_target_phones = []
-    val_target_classes = []
+    val_scores = []
     
     val_audio_path = Path(__file__).resolve().parents[0] / "data" / "user_audio" / "val"
     
@@ -89,15 +89,15 @@ def build_matrices():
                 target_phones_ids.append(vocab["<UNK>"])
         
         target_phones_numpy = np.array(target_phones_ids)
-        target_classes_numpy = np.array(sample["target_classes"])
+        scores_numpy = np.array(sample["scores"])
         
         val_target_phones.append(target_phones_numpy)
-        val_target_classes.append(target_classes_numpy)
+        val_scores.append(scores_numpy)
             
 
     test_user_audio = []
     test_target_phones = []
-    test_target_classes = []
+    test_scores = []
     
     test_audio_path = Path(__file__).resolve().parents[0] / "data" / "user_audio" / "test"
     
@@ -114,22 +114,19 @@ def build_matrices():
                 target_phones_ids.append(vocab["<UNK>"])
         
         target_phones_numpy = np.array(target_phones_ids)
-        target_classes_numpy = np.array(sample["target_classes"])
+        scores_numpy = np.array(sample["scores"])
         
         test_target_phones.append(target_phones_numpy)
-        test_target_classes.append(target_classes_numpy)
+        test_scores.append(scores_numpy)
         
     train_audio_pad_len = 0
     train_phones_pad_len = 0
-    train_classes_pad_len = 0
     
     val_audio_pad_len = 0
     val_phones_pad_len = 0
-    val_classes_pad_len = 0
     
     test_audio_pad_len = 0
     test_phones_pad_len = 0
-    test_classes_pad_len = 0
     
     for sample in train_user_audio:
         train_audio_pad_len = max(train_audio_pad_len, sample.shape[0])
@@ -150,17 +147,6 @@ def build_matrices():
         
     for sample in test_target_phones:
         test_phones_pad_len = max(test_phones_pad_len, sample.shape[0])
-        
-        
-        
-    for sample in train_target_classes:
-        train_classes_pad_len = max(train_classes_pad_len, sample.shape[0])
-        
-    for sample in val_target_classes:
-        val_classes_pad_len = max(val_classes_pad_len, sample.shape[0])
-        
-    for sample in test_target_classes:
-        test_classes_pad_len = max(test_classes_pad_len, sample.shape[0])
     
     train_audio_padded = []
     val_audio_padded = []
@@ -169,10 +155,6 @@ def build_matrices():
     train_phones_padded = []
     val_phones_padded = []
     test_phones_padded = []
-    
-    train_classes_padded = []
-    val_classes_padded = []
-    test_classes_padded = []
     
     for sample in train_user_audio:
         padded = np.zeros((train_audio_pad_len, sample.shape[1]), dtype=np.float32)
@@ -215,27 +197,6 @@ def build_matrices():
         test_phones_padded.append(padded)
         
     del test_target_phones
-        
-    for sample in train_target_classes:
-        padded = np.full(train_classes_pad_len, -1, dtype=np.int32)
-        padded[:sample.shape[0]] = sample
-        train_classes_padded.append(padded)        
-        
-    del train_target_classes
-        
-    for sample in val_target_classes:
-        padded = np.full(val_classes_pad_len, -1, dtype=np.int32)
-        padded[:sample.shape[0]] = sample
-        val_classes_padded.append(padded)    
-        
-    del val_target_classes
-        
-    for sample in test_target_classes:
-        padded = np.full(test_classes_pad_len, -1, dtype=np.int32)
-        padded[:sample.shape[0]] = sample
-        test_classes_padded.append(padded)   
-        
-    del test_target_classes
      
     train_audio_numpy = np.array(train_audio_padded)
     del train_audio_padded
@@ -251,12 +212,12 @@ def build_matrices():
     test_phones_numpy = np.array(test_phones_padded)
     del test_phones_padded
     
-    train_classes_numpy = np.array(train_classes_padded)
-    del train_classes_padded
-    val_classes_numpy = np.array(val_classes_padded)
-    del val_classes_padded
-    test_classes_numpy = np.array(test_classes_padded)
-    del test_classes_padded
+    train_classes_numpy = np.array(train_scores)
+    del train_scores
+    val_classes_numpy = np.array(val_scores)
+    del val_scores
+    test_classes_numpy = np.array(test_scores)
+    del test_scores
         
     train_audio_mask = np.any(train_audio_numpy != 0.0, axis=-1).astype(np.float32)
     val_audio_mask = np.any(val_audio_numpy != 0.0, axis=-1).astype(np.float32)
@@ -264,11 +225,7 @@ def build_matrices():
     
     train_phones_mask = (train_phones_numpy != 0).astype(np.int32)
     val_phones_mask = (val_phones_numpy != 0).astype(np.int32)
-    test_phones_mask = (test_phones_numpy != 0).astype(np.int32)
-    
-    train_classes_mask = (train_classes_numpy != -1).astype(np.int32)
-    val_classes_mask = (val_classes_numpy != -1).astype(np.int32)
-    test_classes_mask = (test_classes_numpy != -1).astype(np.int32)       
+    test_phones_mask = (test_phones_numpy != 0).astype(np.int32)     
     
     np.save(out_path / "train_user_audio.npy", train_audio_numpy)
     np.save(out_path / "val_user_audio.npy", val_audio_numpy)
@@ -289,10 +246,6 @@ def build_matrices():
     np.save(out_path / "train_target_phonemes_mask.npy", train_phones_mask)
     np.save(out_path / "val_target_phonemes_mask.npy", val_phones_mask)
     np.save(out_path / "test_target_phonemes_mask.npy", test_phones_mask)
-    
-    np.save(out_path / "train_target_classes_mask.npy", train_classes_mask)
-    np.save(out_path / "val_target_classes_mask.npy", val_classes_mask)
-    np.save(out_path / "test_target_classes_mask.npy", test_classes_mask)
 
     print("matrices saved.")
 
@@ -316,11 +269,8 @@ def build_matrices():
     print(f"val target phonemes mask: {val_phones_mask.shape}")
     print(f"test target phonemes mask: {test_phones_mask.shape}")
 
-    print(f"train target classes mask: {train_classes_mask.shape}")
-    print(f"val target classes mask: {val_classes_mask.shape}")
-    print(f"test target classes mask: {test_classes_mask.shape}")
     
-    if get_token() != None:
+    if get_token() is not None:
         api = HfApi()
         api.upload_folder(
             repo_id="Carson-Shively/fluency-trainer",
