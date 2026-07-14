@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-def train(train_dataset, val_dataset, user_encoder, target_encoder, transformer, classifier, optimizer, loss_fn):
+def train(train_dataset, val_dataset, model, optimizer, loss_fn):
     max_epochs = 100
     patience = 10
     patience_counter = 0
@@ -8,68 +8,52 @@ def train(train_dataset, val_dataset, user_encoder, target_encoder, transformer,
     epsilon = 0.001
     
     for epoch in range(max_epochs):
-        for batch, labels, labels_mask in train_dataset:
+        train_loss_sum = 0
+        train_batches = 0
+        for batch, labels in train_dataset:
             
             with tf.GradientTape() as tape:
-                user_attention = user_encoder(x=batch["user_audio"], padding_mask=batch["user_audio_mask"], training=True)
-                target_attention = target_encoder(x=batch["target_phones"], padding_mask=batch["target_phones_mask"], training=True)
                 
-                cross_attention = transformer(user_attention=user_attention, target_attention=target_attention, user_mask=batch["user_audio_mask"], target_mask=batch["target_phones_mask"], training=True)
+                output = model(audio=batch["user_audio"], phones=batch["target_phones"], audio_mask=batch["user_audio_mask"], phones_mask=batch["target_phones_mask"])
                 
-                logits = classifier(cross_attention, training=True)
+                accuracy_loss = loss_fn(output["accuracy"], labels[:, 0:1])
+                fluency_loss = loss_fn(output["fluency"], labels[:, 1:2])
+                prosodic_loss = loss_fn(output["prosodic"], labels[:, 2:3])
+                total_loss = loss_fn(output["total"], labels[:, 3:4])
                 
-                safe_labels = tf.where(
-                    labels == -1,
-                    tf.zeros_like(labels),
-                    labels
-                )
+                loss = accuracy_loss + fluency_loss + prosodic_loss + total_loss
                 
-                loss = loss_fn(safe_labels, logits)
                 
-                classes_mask = tf.cast(labels_mask, tf.float32)
-                
-                loss_masked = loss * classes_mask
-                
-                loss_avg = tf.reduce_sum(loss_masked) / tf.reduce_sum(tf.cast(labels_mask, dtype=loss_masked.dtype))
-                
-            all_variables = user_encoder.trainable_variables + target_encoder.trainable_variables + transformer.trainable_variables + classifier.trainable_variables
+            gradients = tape.gradient(loss, model.trainable_variables)
+            optimizer.apply_gradients(zip(gradients, model.trainable_variables))
             
-            gradients = tape.gradient(loss_avg, all_variables)
-            optimizer.apply_gradients(zip(gradients, all_variables))
-            
-        total_loss = 0
+            train_loss_sum += loss
+            train_batches += 1
+        
+        train_loss = train_loss_sum / train_batches
+        
+        print(f"epoch {epoch + 1} train loss: {train_loss}")
+        
+        val_loss_sum = 0
         batch_counter = 0
             
-        for batch, labels, labels_mask in val_dataset:
+        for batch, labels in val_dataset:
             
-            user_attention = user_encoder(x=batch["user_audio"], padding_mask=batch["user_audio_mask"], training=False)
-            target_attention = target_encoder(x=batch["target_phones"], padding_mask=batch["target_phones_mask"], training=False)
+            output = model(audio=batch["user_audio"], phones=batch["target_phonemes"], audio_mask=batch["user_audio_mask"], phones_mask=batch["target_phonemes_mask"])
             
-            cross_attention = transformer(user_attention=user_attention, target_attention=target_attention, user_mask=batch["user_audio_mask"], target_mask=batch["target_phones_mask"], training=False)
+            accuracy_loss = loss_fn(output["accuracy"], labels[:, 0:1])
+            fluency_loss = loss_fn(output["fluency"], labels[:, 1:2])
+            prosodic_loss = loss_fn(output["prosodic"], labels[:, 2:3])
+            total_loss = loss_fn(output["total"], labels[:, 3:4])
             
-            logits = classifier(cross_attention, training=False)
+            loss = accuracy_loss + fluency_loss + prosodic_loss + total_loss
             
-            safe_labels = tf.where(
-                labels == -1,
-                tf.zeros_like(labels),
-                labels
-            )
-            
-            loss = loss_fn(safe_labels, logits)
-            
-            classes_mask = tf.cast(labels_mask, tf.float32)
-            
-            loss_masked = loss * classes_mask
-            
-            loss_avg = tf.reduce_sum(loss_masked) / tf.reduce_sum(tf.cast(labels_mask, dtype=loss_masked.dtype))
-            
-            total_loss += loss_avg
-            
+            val_loss_sum += loss
             batch_counter += 1
             
-        avg_loss = total_loss / batch_counter
+        avg_loss = val_loss_sum / batch_counter
         
-        print(f"epoch: {epoch+1}, current val loss: {avg_loss}, best val loss: {best_loss}")
+        print(f"epoch {epoch + 1} val loss: {avg_loss}")
         
         if avg_loss + epsilon < best_loss:
             best_loss = avg_loss
@@ -77,7 +61,7 @@ def train(train_dataset, val_dataset, user_encoder, target_encoder, transformer,
         else:
             patience_counter += 1
             
-        if patience_counter == patience:
+        if patience_counter >= patience:
             return best_loss
         
     return best_loss

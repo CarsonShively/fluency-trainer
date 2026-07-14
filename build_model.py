@@ -1,7 +1,4 @@
-from fluency_trainer.user_phoneme_encoder import UserPhonemeEncoder
-from fluency_trainer.target_phoneme_encoder import TargetPhonemeEncoder
-from fluency_trainer.cross_attention_transformer import CrossAttentionTransformer
-from fluency_trainer.classifier_head import ClassifierHead
+from fluency_trainer.phone_audio_alignment_model import PhoneAudioAlignmentModel
 from fluency_trainer.train import train
 
 import numpy as np
@@ -39,23 +36,10 @@ def build_model():
     train_target_phonemes_mask = np.load(cache_data / "matrices/train_target_phonemes_mask.npy")
     val_target_phonemes_mask = np.load(cache_data / "matrices/val_target_phonemes_mask.npy")
     
-    
-    train_target_classes = np.load(cache_data / "matrices/train_target_classes.npy")
-    val_target_classes = np.load(cache_data / "matrices/val_target_classes.npy")
-
-    train_target_classes_mask = np.load(cache_data / "matrices/train_target_classes_mask.npy")
-    val_target_classes_mask = np.load(cache_data / "matrices/val_target_classes_mask.npy")
-    
-    test_user_audio = np.load(cache_data / "matrices/test_user_audio.npy")
-    test_target_phonemes = np.load(cache_data / "matrices/test_target_phonemes.npy")
-    
-    audio_len = max(train_user_audio.shape[1], val_user_audio.shape[1], test_user_audio.shape[1])
-    target_len = max(train_target_phonemes.shape[1], val_target_phonemes.shape[1], test_target_phonemes.shape[1])
-    uncertainty_vecctor_size = train_user_audio.shape[2]
+    train_scores = np.load(cache_data / "matrices/train_target_classes.npy")
+    val_scores = np.load(cache_data / "matrices/val_target_classes.npy")
 
     print("point 1")
-    
-    del test_user_audio, test_target_phonemes
     
     train_user_audio_tensor = tf.convert_to_tensor(train_user_audio, dtype=tf.float32)
     del train_user_audio
@@ -64,7 +48,6 @@ def build_model():
 
     train_user_audio_mask_tensor = tf.convert_to_tensor(train_user_audio_mask, dtype=tf.float32)
     del train_user_audio_mask
-    
     val_user_audio_mask_tensor = tf.convert_to_tensor(val_user_audio_mask, dtype=tf.float32)
     del val_user_audio_mask
 
@@ -78,15 +61,11 @@ def build_model():
     val_target_phonemes_mask_tensor = tf.convert_to_tensor(val_target_phonemes_mask, dtype=tf.int32)
     del val_target_phonemes_mask
     
-    train_target_classes_tensor = tf.convert_to_tensor(train_target_classes, dtype=tf.int32)
-    del train_target_classes
-    val_target_classes_tensor = tf.convert_to_tensor(val_target_classes, dtype=tf.int32)
-    del val_target_classes
+    train_target_classes_tensor = tf.convert_to_tensor(train_scores, dtype=tf.float32)
+    del train_scores
+    val_target_classes_tensor = tf.convert_to_tensor(val_scores, dtype=tf.float32)
+    del val_scores
 
-    train_target_classes_mask_tensor = tf.convert_to_tensor(train_target_classes_mask, dtype=tf.int32)
-    del train_target_classes_mask
-    val_target_classes_mask_tensor = tf.convert_to_tensor(val_target_classes_mask, dtype=tf.int32)
-    del val_target_classes_mask
     
     print("point 2")
     
@@ -97,8 +76,7 @@ def build_model():
             "target_phones": train_target_phonemes_tensor,
             "target_phones_mask": train_target_phonemes_mask_tensor
         },
-        train_target_classes_tensor,
-        train_target_classes_mask_tensor
+        train_target_classes_tensor
     ))
     
     
@@ -110,7 +88,6 @@ def build_model():
             "target_phones_mask": val_target_phonemes_mask_tensor
         },
         val_target_classes_tensor,
-        val_target_classes_mask_tensor
     ))
     print("point 3")
     train_dataset_batched = train_dataset.shuffle(buffer_size=1000).batch(16)
@@ -120,16 +97,13 @@ def build_model():
     
     
     
-    user_audio_encoder = UserPhonemeEncoder(max_phonemes=audio_len, uncertianty_vector_size=uncertainty_vecctor_size, dense_width=64, dense1_width=128, dropout=0.1)
-    target_phoneme_encoder = TargetPhonemeEncoder(vocab_size=vocab_len, max_phonemes=target_len, embeded_vector_size=128, dense_width=64, dense1_width=128, dropout=0.1)
-    cross_attention_transformer = CrossAttentionTransformer(embeded_vector_size=128, uncertainty_vector_size=uncertainty_vecctor_size, dense=64, dense1=128, dropout=0.1)
-    classifier_head = ClassifierHead(embeded_vector_size=128, dense1=64, dense2=128, dropout=0.1)
+    model = PhoneAudioAlignmentModel(vocab_size=vocab_len)
     print("point 6")
     optimizer = tf.keras.optimizers.AdamW(learning_rate=3e-4, weight_decay=1e-4)
     
-    loss_fn = tf.losses.SparseCategoricalCrossentropy(from_logits=True, reduction="none")
+    loss_fn = tf.losses.MeanSquaredError()
     print("point 7")
-    val_loss = train(train_dataset=train_dataset_batched, val_dataset=val_dataset_batched, user_encoder=user_audio_encoder, target_encoder=target_phoneme_encoder, transformer=cross_attention_transformer, classifier=classifier_head, optimizer=optimizer, loss_fn=loss_fn)
+    val_loss = train(train_dataset=train_dataset_batched, val_dataset=val_dataset_batched, model=model, optimizer=optimizer, loss_fn=loss_fn)
     
     print(f"val loss: {val_loss}")
     
@@ -141,10 +115,7 @@ def build_model():
     
     out_path.mkdir(parents=True, exist_ok=True)
     
-    user_audio_encoder.save_weights(out_path / "user_encoder.weights.h5")
-    user_audio_encoder.save_weights(out_path / "target_encoder.weights.h5")
-    user_audio_encoder.save_weights(out_path / "cross_attention_transformer.weights.h5")
-    user_audio_encoder.save_weights(out_path / "classifier_head.weights.h5")
+    model.save_weights(out_path / "phone_audio_alignment_model.weights.h5")
     
     api = HfApi()
 
@@ -159,3 +130,5 @@ def build_model():
     
 if __name__ == "__main__":
     build_model()
+    
+    # 8 hours vs workout
