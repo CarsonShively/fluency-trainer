@@ -212,11 +212,11 @@ def build_matrices():
     test_phones_numpy = np.array(test_phones_padded)
     del test_phones_padded
     
-    train_classes_numpy = np.array(train_scores)
+    train_scores_numpy = np.array(train_scores)
     del train_scores
-    val_classes_numpy = np.array(val_scores)
+    val_scores_numpy = np.array(val_scores)
     del val_scores
-    test_classes_numpy = np.array(test_scores)
+    test_scores_numpy = np.array(test_scores)
     del test_scores
         
     train_audio_mask = np.any(train_audio_numpy != 0.0, axis=-1).astype(np.float32)
@@ -235,17 +235,13 @@ def build_matrices():
     np.save(out_path / "val_target_phonemes.npy", val_phones_numpy)
     np.save(out_path / "test_target_phonemes.npy", test_phones_numpy)
     
-    np.save(out_path / "train_target_classes.npy", train_classes_numpy)
-    np.save(out_path / "val_target_classes.npy", val_classes_numpy)
-    np.save(out_path / "test_target_classes.npy", test_classes_numpy)
+    np.save(out_path / "train_scores.npy", train_scores_numpy)
+    np.save(out_path / "val_scores.npy", val_scores_numpy)
+    np.save(out_path / "test_scores.npy", test_scores_numpy)
 
     np.save(out_path / "train_user_audio_mask.npy", train_audio_mask)
     np.save(out_path / "val_user_audio_mask.npy", val_audio_mask)
     np.save(out_path / "test_user_audio_mask.npy", test_audio_mask)
-    
-    np.save(out_path / "train_target_phonemes_mask.npy", train_phones_mask)
-    np.save(out_path / "val_target_phonemes_mask.npy", val_phones_mask)
-    np.save(out_path / "test_target_phonemes_mask.npy", test_phones_mask)
 
     print("matrices saved.")
 
@@ -257,9 +253,9 @@ def build_matrices():
     print(f"val target phonemes: {val_phones_numpy.shape}")
     print(f"test target phonemes: {test_phones_numpy.shape}")
 
-    print(f"train target classes: {train_classes_numpy.shape}")
-    print(f"val target classes: {val_classes_numpy.shape}")
-    print(f"test target classes: {test_classes_numpy.shape}")
+    print(f"train scores: {train_scores_numpy.shape}")
+    print(f"val scores: {val_scores_numpy.shape}")
+    print(f"test scores: {test_scores_numpy.shape}")
     
     print(f"train user audio mask: {train_audio_mask.shape}")
     print(f"val user audio mask: {val_audio_mask.shape}")

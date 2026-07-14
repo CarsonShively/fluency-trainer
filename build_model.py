@@ -16,7 +16,7 @@ def build_model():
     snapshot_download(
         repo_id="Carson-Shively/fluency-trainer",
         repo_type="dataset",
-        allow_patterns=["matrices/**", "vocab/**"],
+        allow_patterns=["matrices/train/**", "matrices/val/**", "vocab/**"],
         local_dir=local_data
     )
     
