@@ -11,7 +11,7 @@ from huggingface_hub import snapshot_download, HfApi, get_token
 
 def build_model():
     
-    local_data = Path(__file__).resolve().parents[0] / "data"
+    
     
     allow_patterns = [
         "matrices/train_user_audio.npy",
@@ -27,12 +27,12 @@ def build_model():
         "vocab/**",
     ]
     
-    snapshot_download(
+    local_data = Path(snapshot_download(
         repo_id="Carson-Shively/fluency-trainer",
         repo_type="dataset",
         allow_patterns=allow_patterns,
         local_dir=local_data
-    )
+    ))
     
     with open(local_data / "vocab/vocab.json", "r") as con:
         vocab = json.load(con)
