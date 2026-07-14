@@ -13,10 +13,24 @@ def build_model():
     
     local_data = Path(__file__).resolve().parents[0] / "data"
     
+    allow_patterns = [
+        "matrices/train_user_audio.npy",
+        "matrices/val_user_audio.npy",
+        "matrices/train_user_audio_mask.npy",
+        "matrices/val_user_audio_mask.npy",
+        "matrices/train_target_phonemes.npy",
+        "matrices/val_target_phonemes.npy",
+        "matrices/train_target_phonemes_mask.npy",
+        "matrices/val_target_phonemes_mask.npy",
+        "matrices/train_target_classes.npy",
+        "matrices/val_target_classes.npy",
+        "vocab/**",
+    ]
+    
     snapshot_download(
         repo_id="Carson-Shively/fluency-trainer",
         repo_type="dataset",
-        allow_patterns=["matrices/train/**", "matrices/val/**", "vocab/**"],
+        allow_patterns=allow_patterns,
         local_dir=local_data
     )
     
@@ -40,8 +54,8 @@ def build_model():
     train_target_phonemes_mask = np.load(local_data / "matrices/train_target_phonemes_mask.npy")
     val_target_phonemes_mask = np.load(local_data / "matrices/val_target_phonemes_mask.npy")
     
-    train_scores = np.load(local_data / "matrices/train_scores.npy")
-    val_scores = np.load(local_data / "matrices/val_scores.npy")
+    train_scores = np.load(local_data / "matrices/train_target_classes.npy")
+    val_scores = np.load(local_data / "matrices/val_target_classes.npy")
 
     print("point 1")
     
