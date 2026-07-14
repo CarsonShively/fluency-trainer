@@ -11,13 +11,16 @@ from huggingface_hub import snapshot_download, HfApi, get_token
 
 def build_model():
     
-    cache_data = Path(snapshot_download(
+    local_data = Path(__file__).resolve().parents[0] / "data"
+    
+    snapshot_download(
         repo_id="Carson-Shively/fluency-trainer",
         repo_type="dataset",
-        allow_patterns=["matrices/**", "vocab/**"]
-    ))
+        allow_patterns=["matrices/**", "vocab/**"],
+        local_dir=local_data
+    )
     
-    with open(cache_data / "vocab/vocab.json", "r") as con:
+    with open(local_data / "vocab/vocab.json", "r") as con:
         vocab = json.load(con)
     
     vocab_len = len(vocab)
@@ -25,20 +28,20 @@ def build_model():
     
     del vocab
     
-    train_user_audio = np.load(cache_data / "matrices/train_user_audio.npy")
-    val_user_audio = np.load(cache_data / "matrices/val_user_audio.npy")
+    train_user_audio = np.load(local_data / "matrices/train_user_audio.npy")
+    val_user_audio = np.load(local_data / "matrices/val_user_audio.npy")
 
-    train_user_audio_mask = np.load(cache_data / "matrices/train_user_audio_mask.npy")
-    val_user_audio_mask = np.load(cache_data / "matrices/val_user_audio_mask.npy")
+    train_user_audio_mask = np.load(local_data / "matrices/train_user_audio_mask.npy")
+    val_user_audio_mask = np.load(local_data / "matrices/val_user_audio_mask.npy")
 
-    train_target_phonemes = np.load(cache_data / "matrices/train_target_phonemes.npy")
-    val_target_phonemes = np.load(cache_data / "matrices/val_target_phonemes.npy")
+    train_target_phonemes = np.load(local_data / "matrices/train_target_phonemes.npy")
+    val_target_phonemes = np.load(local_data / "matrices/val_target_phonemes.npy")
 
-    train_target_phonemes_mask = np.load(cache_data / "matrices/train_target_phonemes_mask.npy")
-    val_target_phonemes_mask = np.load(cache_data / "matrices/val_target_phonemes_mask.npy")
+    train_target_phonemes_mask = np.load(local_data / "matrices/train_target_phonemes_mask.npy")
+    val_target_phonemes_mask = np.load(local_data / "matrices/val_target_phonemes_mask.npy")
     
-    train_scores = np.load(cache_data / "matrices/train_target_classes.npy")
-    val_scores = np.load(cache_data / "matrices/val_target_classes.npy")
+    train_scores = np.load(local_data / "matrices/train_target_classes.npy")
+    val_scores = np.load(local_data / "matrices/val_target_classes.npy")
 
     print("point 1")
     

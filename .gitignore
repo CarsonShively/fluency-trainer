@@ -6,3 +6,4 @@ __pycache__/
 wav2vec2/
 data/user_audio/
 data/
+sentences/
