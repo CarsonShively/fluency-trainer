@@ -21,6 +21,7 @@ def build_model():
         vocab = json.load(con)
     
     vocab_len = len(vocab)
+    print(f"vocab len: {vocab_len}")
     
     del vocab
     
@@ -124,11 +125,10 @@ def build_model():
             folder_path=out_path,
             repo_id="Carson-Shively/fluency-trainer",
             repo_type="model",
-            path_in_repo="speech2target",
+            path_in_repo="phone_audio_alignment_model",
             delete_patterns="*"   
         )
     
 if __name__ == "__main__":
     build_model()
     
-    # 8 hours vs workout
