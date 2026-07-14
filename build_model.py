@@ -30,8 +30,7 @@ def build_model():
     local_data = Path(snapshot_download(
         repo_id="Carson-Shively/fluency-trainer",
         repo_type="dataset",
-        allow_patterns=allow_patterns,
-        local_dir=local_data
+        allow_patterns=allow_patterns
     ))
     
     with open(local_data / "vocab/vocab.json", "r") as con:
