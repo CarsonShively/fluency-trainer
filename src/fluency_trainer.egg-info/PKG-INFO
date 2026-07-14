@@ -11,3 +11,4 @@ Requires-Dist: soundfile<1,>=0.12
 Requires-Dist: transformers<6,>=4.50
 Requires-Dist: phonemizer<4,>=3.3
 Requires-Dist: huggingface-hub<2,>=1
+Requires-Dist: streamlit<1.60,>=1.59

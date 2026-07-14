@@ -1,11 +1,8 @@
 pyproject.toml
 src/fluency_trainer/classifier_head.py
 src/fluency_trainer/cross_attention_transformer.py
-src/fluency_trainer/matrices_to_tensors.py
-src/fluency_trainer/pad_target.py
-src/fluency_trainer/samples_to_matrices.py
+src/fluency_trainer/phone_audio_alignment_model.py
 src/fluency_trainer/target_phoneme_encoder.py
-src/fluency_trainer/target_phones_matrix.py
 src/fluency_trainer/train.py
 src/fluency_trainer/user_phoneme_encoder.py
 src/fluency_trainer.egg-info/PKG-INFO

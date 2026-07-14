@@ -16,7 +16,8 @@ dependencies = [
     "soundfile>=0.12,<1",
     "transformers>=4.50,<6",
     "phonemizer>=3.3,<4",
-    "huggingface-hub>=1,<2"
+    "huggingface-hub>=1,<2",
+    "streamlit>=1.59,<1.60"
 ]
 
 [tool.dagster]

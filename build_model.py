@@ -40,8 +40,8 @@ def build_model():
     train_target_phonemes_mask = np.load(local_data / "matrices/train_target_phonemes_mask.npy")
     val_target_phonemes_mask = np.load(local_data / "matrices/val_target_phonemes_mask.npy")
     
-    train_scores = np.load(local_data / "matrices/train_target_classes.npy")
-    val_scores = np.load(local_data / "matrices/val_target_classes.npy")
+    train_scores = np.load(local_data / "matrices/train_scores.npy")
+    val_scores = np.load(local_data / "matrices/val_scores.npy")
 
     print("point 1")
     
