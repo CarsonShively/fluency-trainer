@@ -1,7 +1,8 @@
-from huggingface_hub import snapshot_download
+from huggingface_hub import snapshot_download, HfApi
 from pathlib import Path
 import tensorflow as tf
 import numpy as np
+import json
 
 def mean_baseline():
     
@@ -31,7 +32,29 @@ def mean_baseline():
     
     loss = accuracy_loss + fluency_loss + ps_loss + total_loss
     
-    print(f"mean baseline loss: {loss}")
+    mean_loss = float(loss.numpy())
+    
+    print(f"mean baseline loss: {mean_loss}")
+    
+    report = {
+        "mean_baseline_mse": mean_loss
+    }
+    
+    out_path = Path(__file__).resolve().parents[0] / "mean_baseline_report.json"
+    
+    out_path.unlink(missing_ok=True)
+    
+    with open(out_path, "w") as con:
+        json.dump(report, con)
+    
+    api = HfApi()
+    
+    api.upload_file(
+        repo_id="Carson-Shively/fluency-trainer",
+        repo_type="model",
+        path_or_fileobj=out_path,
+        path_in_repo="mean_baseline_report.json",
+    )
     
 if __name__ == "__main__":
     mean_baseline()

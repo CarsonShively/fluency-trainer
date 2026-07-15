@@ -2,13 +2,13 @@ from huggingface_hub import HfApi
 from pathlib import Path
 
 def hf_upload():
-    upload_path = Path(__file__).resolve().parents[0] / "fluency_trainer_model/phone_audio_alignment_model.weights.h5"
+    upload_path = Path(__file__).resolve().parents[0] / "evaluation_report.json"
     
     api = HfApi()
     
     api.upload_file(
         path_or_fileobj=upload_path,
-        path_in_repo="phone_audio_alignment_model.weights.h5",
+        path_in_repo="evaluation_report.json",
         repo_id="Carson-Shively/fluency-trainer",
         repo_type="model"
     )
