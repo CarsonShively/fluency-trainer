@@ -1,10 +1,9 @@
-from huggingface_hub import snapshot_download, HfApi
+from huggingface_hub import snapshot_download, HfApi, get_token
 from pathlib import Path
 import tensorflow as tf
 import numpy as np
 import json
 
-# test sigmoid scale
 def mean_baseline():
     
     local_data = Path(snapshot_download(
@@ -46,14 +45,15 @@ def mean_baseline():
     with open(out_path, "w") as con:
         json.dump(report, con)
     
-    api = HfApi()
-    
-    api.upload_file(
-        repo_id="Carson-Shively/fluency-trainer",
-        repo_type="model",
-        path_or_fileobj=out_path,
-        path_in_repo="mean_baseline_benchmark.json",
-    )
+    if get_token() != None:
+        api = HfApi()
+        
+        api.upload_file(
+            repo_id="Carson-Shively/fluency-trainer",
+            repo_type="model",
+            path_or_fileobj=out_path,
+            path_in_repo="mean_baseline_benchmark.json",
+        )
     
 if __name__ == "__main__":
     mean_baseline()

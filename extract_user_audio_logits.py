@@ -5,6 +5,7 @@ from pathlib import Path
 import soundfile as sf
 import numpy as np
 import shutil
+from huggingface_hub import snapshot_download, HfApi, get_token
 
 
 def extract_user_audio_logits():
@@ -16,10 +17,18 @@ def extract_user_audio_logits():
     device = torch.device("cuda")
     print("device created sucessfully.")
     
-    out_path = Path(__file__).resolve().parents[0] / "data/user_audio"
+    local_data = Path(snapshot_download(
+        repo_id="Carson-Shively/fluency-trainer",
+        repo_type="dataset",
+        allow_patterns=["samples/**", "speechocean672/**"]
+    ))
+    
+    out_path = Path(__file__).resolve().parents[0] / "user_audio"
     
     if out_path.is_dir():
         shutil.rmtree(out_path)
+        
+    out_path.mkdir(parents=True, exist_ok=True)
       
     train_out_path = out_path / "train"
     train_out_path.mkdir(parents=True, exist_ok=True)
@@ -32,28 +41,27 @@ def extract_user_audio_logits():
     
     expected_sample_rate = 16000
     
-    wav2vec2_path = Path(__file__).resolve().parents[0] / "wav2vec2"
     
-    processor = AutoProcessor.from_pretrained(wav2vec2_path, local_files_only=True)
-    model = AutoModelForCTC.from_pretrained(wav2vec2_path, local_files_only=True)
+    processor = AutoProcessor.from_pretrained("facebook/wav2vec2-lv-60-espeak-cv-ft")
+    model = AutoModelForCTC.from_pretrained("facebook/wav2vec2-lv-60-espeak-cv-ft")
     model.eval()
     model.to(device)
     
-    samples_path = Path(__file__).resolve().parents[0] / "data/samples"
     
-    with open(samples_path / "train.json", "r") as con:
+    
+    with open(local_data / "samples/train.json", "r") as con:
         train_samples = json.load(con)
         
-    with open(samples_path / "val.json", "r") as con:
+    with open(local_data / "samples/val.json", "r") as con:
         val_samples = json.load(con)
         
-    with open(samples_path / "test.json", "r") as con:
+    with open(local_data / "samples/test.json", "r") as con:
         test_samples = json.load(con)
     
     train_samples_counter = len(train_samples)
     for sample_id, sample in train_samples.items():
         
-        audio_path = Path(__file__).resolve().parents[0] / sample["user_audio_path"]
+        audio_path = local_data / sample["user_audio_path"]
         waveform, sample_rate = sf.read(audio_path)
             
         if sample_rate != expected_sample_rate:
@@ -79,7 +87,7 @@ def extract_user_audio_logits():
     val_samples_counter = len(val_samples)
     for sample_id, sample in val_samples.items():
         
-        audio_path = Path(__file__).resolve().parents[0] / sample["user_audio_path"]
+        audio_path = local_data / sample["user_audio_path"]
         waveform, sample_rate = sf.read(audio_path)
             
         if sample_rate != expected_sample_rate:
@@ -105,7 +113,7 @@ def extract_user_audio_logits():
     test_samples_counter = len(test_samples)
     for sample_id, sample in test_samples.items():
         
-        audio_path = Path(__file__).resolve().parents[0] / sample["user_audio_path"]
+        audio_path = local_data / sample["user_audio_path"]
         waveform, sample_rate = sf.read(audio_path)
             
         if sample_rate != expected_sample_rate:
@@ -128,6 +136,17 @@ def extract_user_audio_logits():
         print(f"test samples remaining: {test_samples_counter}")
         
     print("user audio complete")
+    
+    if get_token() != None:
+        api = HfApi()
+        
+        api.upload_folder(
+            repo_id="Carson-Shively/fluency-trainer",
+            repo_type="dataset",
+            delete_patterns="user_audio/**",
+            path_in_repo="user_audio",
+            upload_path=out_path
+        )
 
     
 if __name__ == "__main__":

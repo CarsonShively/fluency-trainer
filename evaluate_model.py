@@ -1,4 +1,4 @@
-from huggingface_hub import snapshot_download, HfApi
+from huggingface_hub import snapshot_download, HfApi, get_token
 from pathlib import Path
 import tensorflow as tf
 from fluency_trainer.phone_audio_alignment_model import PhoneAudioAlignmentModel
@@ -105,14 +105,14 @@ def evaluate_model():
     with open(out_path, "w") as con:
         json.dump(report, con)
     
-    api = HfApi()
-    
-    api.upload_file(
-        repo_id="Carson-Shively/fluency-trainer",
-        repo_type="model",
-        path_or_fileobj=out_path,
-        path_in_repo="evaluation_report.json",
-    )
+    if get_token() != None:
+        api = HfApi()
+        api.upload_file(
+            repo_id="Carson-Shively/fluency-trainer",
+            repo_type="model",
+            path_or_fileobj=out_path,
+            path_in_repo="evaluation_report.json",
+        )
     
 if __name__ == "__main__":
     evaluate_model()

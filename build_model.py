@@ -55,7 +55,6 @@ def build_model():
     train_scores = np.load(local_data / "matrices/train_target_classes.npy")
     val_scores = np.load(local_data / "matrices/val_target_classes.npy")
 
-    print("point 1")
     
     train_user_audio_tensor = tf.convert_to_tensor(train_user_audio, dtype=tf.float32)
     del train_user_audio
@@ -83,7 +82,6 @@ def build_model():
     del val_scores
 
     
-    print("point 2")
     
     train_dataset = tf.data.Dataset.from_tensor_slices((
         {
@@ -105,20 +103,20 @@ def build_model():
         },
         val_target_classes_tensor,
     ))
-    print("point 3")
+
     train_dataset_batched = train_dataset.shuffle(buffer_size=1000).batch(16)
     val_dataset_batched = val_dataset.batch(16)
     
-    print("point 5")
+
     
     
     
     model = PhoneAudioAlignmentModel(vocab_size=vocab_len)
-    print("point 6")
+
     optimizer = tf.keras.optimizers.AdamW(learning_rate=3e-4, weight_decay=1e-4)
     
     loss_fn = tf.losses.MeanSquaredError()
-    print("point 7")
+    print("training...")
     val_loss = train(train_dataset=train_dataset_batched, val_dataset=val_dataset_batched, model=model, optimizer=optimizer, loss_fn=loss_fn)
     
     print(f"val loss: {val_loss}")
@@ -133,15 +131,15 @@ def build_model():
     
     model.save_weights(out_path / "phone_audio_alignment_model.weights.h5")
     
-    api = HfApi()
+    
 
     if get_token() != None:
-        api.upload_folder(
-            folder_path=out_path,
+        api = HfApi()
+        api.upload_file(
+            path_or_fileobj=out_path / "phone_audio_alignment_model.weights.h5",
             repo_id="Carson-Shively/fluency-trainer",
             repo_type="model",
-            path_in_repo="phone_audio_alignment_model",
-            delete_patterns="*"   
+            path_in_repo="phone_audio_alignment_model.weights.h5"
         )
     
 if __name__ == "__main__":

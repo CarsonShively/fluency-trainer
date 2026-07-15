@@ -4,17 +4,15 @@ import shutil
 from huggingface_hub import snapshot_download, HfApi, get_token
 def build_samples():
     
-    data_path = Path(__file__).resolve().parents[0] / "data"
     
-    snapshot_download(
+    data_path = Path(snapshot_download(
         repo_id="Carson-Shively/fluency-trainer",
         repo_type="dataset",
-        local_dir=data_path,
         allow_patterns="speechocean762/**"
-    )
+    ))
     
-    train_wav_path = Path(__file__).resolve().parents[0] / "data/speechocean762/train/wav.scp"
-    test_wav_path = Path(__file__).resolve().parents[0] / "data/speechocean762/test/wav.scp"
+    train_wav_path = data_path / "speechocean762/train/wav.scp"
+    test_wav_path = data_path / "speechocean762/test/wav.scp"
     
     train_samples = {}
     val_samples = {}
@@ -22,7 +20,7 @@ def build_samples():
     
     train_len = len(train_wav_path.read_text().splitlines())
     
-    scores_path = Path(__file__).resolve().parents[0] / "data/speechocean762/resource/scores.json"
+    scores_path = data_path / "speechocean762/resource/scores.json"
     
     with open(scores_path, "r") as file:
         scores_dict = json.load(file)
@@ -35,7 +33,7 @@ def build_samples():
             parts = line.strip().split()
             
             sample_id = parts[0]
-            user_audio_path = f"data/speechocean762/{parts[1]}"
+            user_audio_path = f"speechocean762/{parts[1]}"
             
             
             
@@ -73,7 +71,7 @@ def build_samples():
             parts = line.strip().split()
             
             sample_id = parts[0]
-            user_audio_path = f"data/speechocean762/{parts[1]}"
+            user_audio_path = f"speechocean762/{parts[1]}"
             
             target_phonemes = []
             scores = []
@@ -98,7 +96,7 @@ def build_samples():
             
     print("test samples complete")
     
-    out_path = Path(__file__).resolve().parents[0] / "data/samples"
+    out_path = Path(__file__).resolve().parents[0] / "samples"
     
     if out_path.is_dir():
         shutil.rmtree(out_path)
@@ -122,7 +120,7 @@ def build_samples():
             path_in_repo="samples",
             repo_id="Carson-Shively/fluency-trainer",
             repo_type="dataset",
-            delete_patterns="*"
+            delete_patterns="samples/**"
         )
         print("samples uploaded.")
     else:

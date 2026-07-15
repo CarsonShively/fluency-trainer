@@ -5,16 +5,12 @@ import shutil
 from huggingface_hub import snapshot_download, get_token, HfApi
 
 def build_matrices():
-    
-    local_data = Path(__file__).resolve().parents[0] / "data"
-    
    
-    snapshot_download(
+    local_data = Path(snapshot_download(
         repo_id="Carson-Shively/fluency-trainer",
         repo_type="dataset",
-        local_dir=local_data,
         allow_patterns=["samples/**", "vocab/**", "user_audio/**"]
-    )
+    ))
         
     print("data loaded to local")
         
@@ -22,26 +18,23 @@ def build_matrices():
     
     print("Starting...")
     
-    out_path = Path(__file__).resolve().parents[0] / "data/matrices"
+    out_path = Path(__file__).resolve().parents[0] / "matrices"
     
     if out_path.is_dir():
         shutil.rmtree(out_path)
         
     out_path.mkdir(parents=True, exist_ok=True)
     
-    vocab_path = Path(__file__).resolve().parents[0] / "data/vocab"
-    with open(vocab_path / "vocab.json", "r") as con:
+    with open(local_data / "vocab/vocab.json", "r") as con:
         vocab = json.load(con)
     
-    samples_path = Path(__file__).resolve().parents[0] / "data/samples"
-    
-    with open(samples_path / "train.json", "r") as con:
+    with open(local_data / "samples/train.json", "r") as con:
         train_samples = json.load(con)
         
-    with open(samples_path / "val.json", "r") as con:
+    with open(local_data / "samples/val.json", "r") as con:
         val_samples = json.load(con)
         
-    with open(samples_path / "test.json", "r") as con:
+    with open(local_data / "samples/test.json", "r") as con:
         test_samples = json.load(con)
     
     print("loads complete")
@@ -50,7 +43,7 @@ def build_matrices():
     train_target_phones = []
     train_scores = []
     
-    train_audio_path = Path(__file__).resolve().parents[0] / "data" / "user_audio" / "train"
+    train_audio_path = local_data / "user_audio" / "train"
     
     for sample_id, sample in train_samples.items():
         audio = np.load(train_audio_path / f"{sample_id}.npy")
@@ -74,7 +67,7 @@ def build_matrices():
     val_target_phones = []
     val_scores = []
     
-    val_audio_path = Path(__file__).resolve().parents[0] / "data" / "user_audio" / "val"
+    val_audio_path = local_data / "user_audio" / "val"
     
     for sample_id, sample in val_samples.items():
         audio = np.load(val_audio_path / f"{sample_id}.npy")
@@ -99,7 +92,7 @@ def build_matrices():
     test_target_phones = []
     test_scores = []
     
-    test_audio_path = Path(__file__).resolve().parents[0] / "data" / "user_audio" / "test"
+    test_audio_path = local_data / "user_audio" / "test"
     
     for sample_id, sample in test_samples.items():
         audio = np.load(test_audio_path / f"{sample_id}.npy")
@@ -273,7 +266,7 @@ def build_matrices():
             repo_type="dataset",
             folder_path=out_path,
             path_in_repo="matrices",
-            delete_patterns="*"
+            delete_patterns="matrices/**"
         )
         
         

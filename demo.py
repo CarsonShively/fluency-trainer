@@ -184,10 +184,6 @@ def demo():
     
     st.write(f"score: {output_score_total}%")
 
-    
-    
-    
 
-    
 if __name__ == "__main__":
     demo()
