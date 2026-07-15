@@ -47,4 +47,5 @@ def dmeo():
     )
     
     st.session_state.current_level = st.session_state.max_level
-    st.session_state.last_score = 0
+
+    

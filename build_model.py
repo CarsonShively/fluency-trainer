@@ -8,7 +8,6 @@ import shutil
 import json
 from huggingface_hub import snapshot_download, HfApi, get_token
 
-
 def build_model():
     
     
@@ -73,9 +72,9 @@ def build_model():
     val_target_phonemes_tensor = tf.convert_to_tensor(val_target_phonemes, dtype=tf.int32)
     del val_target_phonemes
 
-    train_target_phonemes_mask_tensor = tf.convert_to_tensor(train_target_phonemes_mask, dtype=tf.int32)
+    train_target_phonemes_mask_tensor = tf.convert_to_tensor(train_target_phonemes_mask, dtype=tf.float32)
     del train_target_phonemes_mask
-    val_target_phonemes_mask_tensor = tf.convert_to_tensor(val_target_phonemes_mask, dtype=tf.int32)
+    val_target_phonemes_mask_tensor = tf.convert_to_tensor(val_target_phonemes_mask, dtype=tf.float32)
     del val_target_phonemes_mask
     
     train_target_classes_tensor = tf.convert_to_tensor(train_scores, dtype=tf.float32)
