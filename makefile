@@ -53,3 +53,9 @@ hf-logout: $(STAMP)
 
 hf-upload: $(STAMP)
 	cd $(ROOT) && $(PY) hf_upload.py
+
+mean-baseline: $(STAMP)
+	cd $(ROOT) && $(PY) mean_baseline.py
+
+model-evaluation: $(STAMP)
+	cd $(ROOT) && $(PY) model_evaluation.py

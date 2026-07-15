@@ -7,3 +7,4 @@ wav2vec2/
 data/user_audio/
 data/
 sentences/
+fluency_trainer_model/
