@@ -111,7 +111,7 @@ def evaluate_model():
         repo_id="Carson-Shively/fluency-trainer",
         repo_type="model",
         path_or_fileobj=out_path,
-        path_in_repo="evaluation_report.json"
+        path_in_repo="evaluation_report.json",
     )
     
 if __name__ == "__main__":
