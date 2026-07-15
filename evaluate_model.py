@@ -1,9 +1,10 @@
-from huggingface_hub import snapshot_download
+from huggingface_hub import snapshot_download, HfApi
 from pathlib import Path
 import tensorflow as tf
 from fluency_trainer.phone_audio_alignment_model import PhoneAudioAlignmentModel
 import json
 import numpy as np
+
 
 def evaluate_model():
     
@@ -89,7 +90,29 @@ def evaluate_model():
     
     avg_loss = loss_sum / batch_sum
     
-    print(f"holdout loss: {avg_loss}")
+    holdout_loss = float(avg_loss.numpy())
+    
+    print(f"holdout loss: {holdout_loss}")
+    
+    report = {
+        "holdout_mse": holdout_loss
+    }
+    
+    out_path = Path(__file__).resolve().parents[0] / "evaluation_report.json"
+    
+    out_path.unlink(missing_ok=True)
+    
+    with open(out_path, "w") as con:
+        json.dump(report, con)
+    
+    api = HfApi()
+    
+    api.upload_file(
+        repo_id="Carson-Shively/fluency-trainer",
+        repo_type="model",
+        path_or_fileobj=out_path,
+        path_in_repo="evaluation_report.json"
+    )
     
 if __name__ == "__main__":
     evaluate_model()

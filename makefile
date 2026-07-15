@@ -57,5 +57,5 @@ hf-upload: $(STAMP)
 mean-baseline: $(STAMP)
 	cd $(ROOT) && $(PY) mean_baseline.py
 
-model-evaluation: $(STAMP)
-	cd $(ROOT) && $(PY) model_evaluation.py
+evaluate-model: $(STAMP)
+	cd $(ROOT) && $(PY) evaluate_model.py
