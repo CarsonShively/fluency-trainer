@@ -39,7 +39,7 @@ def train(train_dataset, val_dataset, model, optimizer, loss_fn):
             
         for batch, labels in val_dataset:
             
-            output = model(audio=batch["user_audio"], phones=batch["target_phonemes"], audio_mask=batch["user_audio_mask"], phones_mask=batch["target_phonemes_mask"])
+            output = model(audio=batch["user_audio"], phones=batch["target_phones"], audio_mask=batch["user_audio_mask"], phones_mask=batch["target_phones_mask"])
             
             accuracy_loss = loss_fn(output["accuracy"], labels[:, 0:1])
             fluency_loss = loss_fn(output["fluency"], labels[:, 1:2])
