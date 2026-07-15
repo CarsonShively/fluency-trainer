@@ -11,6 +11,8 @@ HF := $(VENV)/bin/hf
 
 STAMP := $(VENV)/installed
 
+ST := $(VENV)/bin/streamlit
+
 $(PY):
 	python3 -m venv $(VENV) 
 
@@ -59,3 +61,6 @@ mean-baseline: $(STAMP)
 
 evaluate-model: $(STAMP)
 	cd $(ROOT) && $(PY) evaluate_model.py
+
+demo: $(STAMP)
+	cd $(ROOT) && $(ST) run demo.py --server.fileWatcherType none

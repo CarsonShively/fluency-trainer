@@ -4,6 +4,7 @@ import tensorflow as tf
 import numpy as np
 import json
 
+# test sigmoid scale
 def mean_baseline():
     
     local_data = Path(snapshot_download(
@@ -40,9 +41,7 @@ def mean_baseline():
         "mean_baseline_mse": mean_loss
     }
     
-    out_path = Path(__file__).resolve().parents[0] / "mean_baseline_report.json"
-    
-    out_path.unlink(missing_ok=True)
+    out_path = Path(__file__).resolve().parents[0] / "mean_baseline_benchmark.json"
     
     with open(out_path, "w") as con:
         json.dump(report, con)
@@ -53,7 +52,7 @@ def mean_baseline():
         repo_id="Carson-Shively/fluency-trainer",
         repo_type="model",
         path_or_fileobj=out_path,
-        path_in_repo="mean_baseline_report.json",
+        path_in_repo="mean_baseline_benchmark.json",
     )
     
 if __name__ == "__main__":

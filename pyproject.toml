@@ -20,8 +20,5 @@ dependencies = [
     "streamlit>=1.59,<1.60"
 ]
 
-[tool.dagster]
-module_name="fluency_trainer.definitions"
-
-[tools.setuptools.packages.find]
+[tool.setuptools.packages.find]
 where = ["src"]

@@ -10,3 +10,4 @@ sentences/
 fluency_trainer_model/
 evaluation_report.json
 mean_baseline_report.json
+mean_baseline_benchmark.json
