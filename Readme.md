@@ -10,7 +10,7 @@ Many speech models focus on inferring mispronounced words rather than assessing 
 The model needed to capture several difficult patterns, including incorrect ordering, extra sounds, missing sounds, variations in speaker cadence when pronouncing the same word, and more.
 
 
-# Alternative Architectures: Cross Attention
+# Earlier Architectures: Cross Attention
 
 An earlier approach used cross attention where the target phones were the query and the user audio frames were the key and value.
 
