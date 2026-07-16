@@ -1,16 +1,16 @@
-# Overview
+# Objective
 
 The goal was to build a model that could accurately represent a user's actual speech compared to a target sentence and grade it according to three categories: accuracy, fluency, and prosodic, along with a final total score that is assessed independently rather than as a sum of the three.
 
 
-# Primary Challenge
+# Modeling Requirements
 
 Many speech models focus on inferring mispronounced words rather than assessing the quality of what was actually spoken. The goal was to accurately grade what was spoken by the user compared with the target they were attempting to say.
 
 The model needed to capture several difficult patterns, including incorrect ordering, extra sounds, missing sounds, variations in speaker cadence when pronouncing the same word, and more.
 
 
-# Earlier Architectures: Cross Attention
+# Earlier Architecture: Cross Attention
 
 An earlier approach used cross attention where the target phones were the query and the user audio frames were the key and value.
 
