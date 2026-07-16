@@ -45,9 +45,13 @@ The alignment vector is then passed through three separate regression heads that
 
 # Metrics
 **Loss Metric:** Mean Squared Error
+
 **Loss Calculation:** Accuracy Loss + Fluency Loss + Prosodic Loss + Total Loss
+
 **Mean Baseline Benchmark:** 42.72442626953125
+
 **Holdout Evaluation:** 5.25933837890625
+
 **Model Lift:** 87.69%
 
 
